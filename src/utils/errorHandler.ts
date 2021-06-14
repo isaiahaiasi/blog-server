@@ -11,6 +11,7 @@ export const catch404 = (
   next(createHttpError(404));
 };
 
+// TODO: should not render a view, since this is an API
 export const errorHandler: ErrorRequestHandler = (err, req, res) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
