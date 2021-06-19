@@ -1,10 +1,12 @@
 import express, { RequestHandler } from "express";
 
+// TODO: split "user" & "blog" routes?
+
 const apiRouter = express.Router();
 
 const sendNotImplemented = (msg: string): RequestHandler => {
   return (req, res) => {
-    res.send("NOT IMPLEMENTED YET: " + msg + "\n");
+    res.send({ errors: [{ msg: "NOT IMPLEMENTED YET: " + msg }] });
   };
 };
 
