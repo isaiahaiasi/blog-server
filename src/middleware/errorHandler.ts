@@ -13,5 +13,5 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
   res.status(err?.status ?? 500);
-  res.send(res.locals.message);
+  res.json({ errors: [{ msg: res.locals.message }] });
 };

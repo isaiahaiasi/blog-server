@@ -9,6 +9,8 @@ import { catch404, errorHandler } from "./middleware/errorHandler";
 
 // router imports
 import apiRouter from "./routes";
+import userRouter from "./routes/user";
+import blogRouter from "./routes/blog";
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.route("/").get((req, res) => {
   res.send("Hello ts guys!");
 });
 
+app.use("/api/user", userRouter);
+app.use("/api/blog", blogRouter);
 app.use("/api", apiRouter);
 
 app.use(catch404);
