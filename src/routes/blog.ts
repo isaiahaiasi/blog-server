@@ -1,13 +1,14 @@
 import express from "express";
+import { getBlogs, postBlog } from "../controllers/blogController";
 import sendNotImplemented from "../utils/tempControllers";
 
 const blogRouter = express.Router();
 
 // Get preview content of all blogs
-blogRouter.get("/", sendNotImplemented("GET /blog"));
+blogRouter.get("/", getBlogs);
 
 // Create a new blog
-blogRouter.post("/", sendNotImplemented("POST /blog"));
+blogRouter.post("/", postBlog);
 
 // Get a specific blog
 blogRouter.get("/:blogid", sendNotImplemented("GET /blog/:blogid"));

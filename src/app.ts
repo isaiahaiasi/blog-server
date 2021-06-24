@@ -1,7 +1,8 @@
 import express from "express";
+import mongoose from "mongoose";
 
 // config imports
-import { PORT } from "./utils/secrets";
+import { PORT, MONGODB_URI } from "./utils/secrets";
 
 // middleware imports
 import cors from "cors";
@@ -14,12 +15,20 @@ import blogRouter from "./routes/blog";
 
 const app = express();
 
+// Set up Mongoose (TODO?: Extract)
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+});
+
 // TODO: set up global middleware
+
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 
-// TODO: set up routes
+// ROUTES
 
 app.route("/").get((req, res) => {
   res.send("Hello ts guys!");
