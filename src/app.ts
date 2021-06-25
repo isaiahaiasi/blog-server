@@ -7,11 +7,14 @@ import { PORT, MONGODB_URI } from "./utils/secrets";
 // middleware imports
 import cors from "cors";
 import { catch404, errorHandler } from "./middleware/errorHandler";
+import passport from "passport";
+import { getJwt, getLocal } from "./utils/passportHandler";
 
 // router imports
 import apiRouter from "./routes";
 import userRouter from "./routes/user";
 import blogRouter from "./routes/blog";
+import authRouter from "./routes/auth";
 
 const app = express();
 
@@ -22,18 +25,23 @@ mongoose.connect(MONGODB_URI, {
   useFindAndModify: false,
 });
 
-// TODO: set up global middleware
+// Global Middleware
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// auth middleware
+passport.use(getLocal());
+passport.use(getJwt());
+app.use(passport.initialize());
 // ROUTES
 
 app.route("/").get((req, res) => {
   res.send("Hello ts guys!");
 });
 
+app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/blog", blogRouter);
 app.use("/api", apiRouter);
