@@ -4,7 +4,7 @@ import { compare } from "bcryptjs";
 
 import User from "../models/user";
 
-import { JWT_SECRET } from "./secrets";
+import { JWT_SECRET } from "../utils/secrets";
 
 // TODO: REGISTERING new user
 
@@ -37,8 +37,10 @@ const getJwt = () => {
       secretOrKey: JWT_SECRET,
     },
     async (jwtPayload, done) => {
-      const user = await User.findById(jwtPayload.id).exec().catch(done);
+      console.log(jwtPayload);
+      const user = await User.findById(jwtPayload._id).exec().catch(done);
 
+      console.log(user);
       if (!user) {
         return done(null, false, {
           message: "Could not find user!",

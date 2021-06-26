@@ -8,7 +8,7 @@ import { PORT, MONGODB_URI } from "./utils/secrets";
 import cors from "cors";
 import { catch404, errorHandler } from "./middleware/errorHandler";
 import passport from "passport";
-import { getJwt, getLocal } from "./utils/passportHandler";
+import { getJwt, getLocal } from "./config/passportConfig";
 
 // router imports
 import apiRouter from "./routes";
