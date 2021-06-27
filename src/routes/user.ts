@@ -1,4 +1,6 @@
 import express from "express";
+import { postRegister } from "../controllers/authController";
+import { getUsers } from "../controllers/userController";
 import sendNotImplemented from "../utils/tempControllers";
 
 const userRouter = express.Router();
@@ -7,10 +9,10 @@ const userRouter = express.Router();
 
 // get list of all users
 // ? s/ ??
-userRouter.get("/", sendNotImplemented("GET /user"));
+userRouter.get("/", getUsers);
 
 // create a new user
-userRouter.post("/", sendNotImplemented("POST /user"));
+userRouter.post("/", postRegister); // ? Idk if this should be in this router...
 
 // get a specific user
 userRouter.get("/:userid", sendNotImplemented("GET /user/:userid"));
