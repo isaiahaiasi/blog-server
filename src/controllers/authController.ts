@@ -5,12 +5,12 @@ import bcrypt from "bcryptjs";
 
 import { JWT_SECRET } from "../utils/secrets";
 import User from "../models/user";
-import { verifyToken } from "../middleware/authentication";
-
-// TODO: registration validators
-// - usernameIsUnique
-// - passwords match
-// - (anything else, eg pw & username content requirements)
+import {
+  passwordsMatchValidator,
+  passwordValidator,
+  usernameValidator,
+} from "../middleware/userValidators";
+import { validatorHandler } from "../middleware/validatorHandler";
 
 const loginUser: RequestHandler = (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
@@ -54,14 +54,16 @@ const registerUser: RequestHandler = async (req, res, next) => {
   }
 };
 
+// TODO: not sure what validation login form needs...
+// I don't necessarily WANT to give errors on invalid usernames/passwords
+// I just want to say if login was successful or not
+// and possibly sanitize the inputs?
 export const postLogin: RequestHandler[] = [loginUser];
-export const postRegister: RequestHandler[] = [registerUser];
 
-// EXAMPLE
-const getProtectedContent: RequestHandler = (req, res, next) => {
-  res.json({ msg: "you did it!" });
-};
-export const getProtected: RequestHandler[] = [
-  verifyToken,
-  getProtectedContent,
+export const postRegister: RequestHandler[] = [
+  usernameValidator,
+  passwordValidator,
+  passwordsMatchValidator,
+  validatorHandler,
+  registerUser,
 ];

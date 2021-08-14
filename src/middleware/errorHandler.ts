@@ -1,7 +1,7 @@
 import { RequestHandler, ErrorRequestHandler } from "express";
 import createHttpError from "http-errors";
 
-// (just the express-generator error handlers at the moment)
+// Express-Generator error handlers
 
 export const catch404: RequestHandler = (req, res, next) => {
   next(createHttpError(404));
