@@ -1,8 +1,8 @@
 import { RequestHandler } from "express";
 import { Types } from "mongoose";
-import { logHeaders, verifyToken } from "../middleware/authentication";
 import Post from "../models/post";
 import User from "../models/user";
+import { verifyToken, verifySameUser } from "../middleware/authentication";
 
 const getAllUsers: RequestHandler = async (req, res, next) => {
   const users = await User.find({}).select("username").exec().catch(next);
@@ -11,6 +11,7 @@ const getAllUsers: RequestHandler = async (req, res, next) => {
 
 export const getUser: RequestHandler = async (req, res, next) => {
   const userId = Types.ObjectId(req.params.userid);
+  console.log("logged in user:", req.user?.username);
   const user = await User.findById(userId, "username").exec().catch(next);
   res.json(user);
 };
@@ -21,8 +22,13 @@ export const getUserPosts: RequestHandler = async (req, res, next) => {
   res.json(posts);
 };
 
+export const getUserVerified: RequestHandler[] = [
+  verifyToken,
+  verifySameUser,
+  getUser,
+];
+
 export const getUsers: RequestHandler[] = [
-  // logHeaders,
   // verifyToken,
   getAllUsers,
 ];

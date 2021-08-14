@@ -27,6 +27,7 @@ const loginUser: RequestHandler = (req, res, next) => {
         res.send(err);
       }
 
+      // ? I do not remember why I'm parse-stringifying this...
       const token = jwt.sign(JSON.parse(JSON.stringify(user)), JWT_SECRET);
 
       return res.json({
@@ -45,8 +46,7 @@ const registerUser: RequestHandler = async (req, res, next) => {
     const pwHash = await bcrypt.hash(password, 10);
 
     // create user and save
-    const user = new User({ username, password: pwHash });
-    await user.save();
+    const user = await new User({ username, password: pwHash }).save();
 
     res.json({ msg: "Registration successful!", user });
   } catch (err) {
@@ -54,12 +54,13 @@ const registerUser: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const postLogin: RequestHandler[] = [loginUser];
+export const postRegister: RequestHandler[] = [registerUser];
+
+// EXAMPLE
 const getProtectedContent: RequestHandler = (req, res, next) => {
   res.json({ msg: "you did it!" });
 };
-
-export const postLogin: RequestHandler[] = [loginUser];
-export const postRegister: RequestHandler[] = [registerUser];
 export const getProtected: RequestHandler[] = [
   verifyToken,
   getProtectedContent,

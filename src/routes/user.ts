@@ -1,6 +1,11 @@
 import express from "express";
 import { postRegister } from "../controllers/authController";
-import { getUser, getUserPosts, getUsers } from "../controllers/userController";
+import {
+  getUser,
+  getUserPosts,
+  getUsers,
+  getUserVerified,
+} from "../controllers/userController";
 import sendNotImplemented from "../utils/tempControllers";
 
 const userRouter = express.Router();
@@ -11,10 +16,11 @@ const userRouter = express.Router();
 userRouter.get("/", getUsers);
 
 // create a new user
-userRouter.post("/", postRegister); // ? Idk if this should be in this router...
+// ? Idk if this should be in this router
+userRouter.post("/", postRegister);
 
 // get a specific user
-userRouter.get("/:userid", getUser);
+userRouter.get("/:userid", getUserVerified);
 
 // update a specific user
 userRouter.put("/:userid", sendNotImplemented("PUT /user/:userid"));

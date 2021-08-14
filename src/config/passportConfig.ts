@@ -39,9 +39,13 @@ const getJwt = () => {
       secretOrKey: JWT_SECRET,
     },
     async (jwtPayload, done) => {
-      const user = await User.findById(jwtPayload._id).exec().catch(done);
+      console.log("jwtPayload:", jwtPayload);
 
-      console.log(user);
+      // I should be able to omit the call to the db,
+      //  since the user info IS the jwtPayload
+      // const user = await User.findById(jwtPayload._id).exec().catch(done);
+      const user = jwtPayload;
+
       if (!user) {
         return done(null, false, {
           message: "Could not find user!",

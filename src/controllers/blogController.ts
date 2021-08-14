@@ -20,9 +20,15 @@ export const getBlogById: RequestHandler = async (req, res, next) => {
 };
 
 export const postBlog: RequestHandler = async (req, res, next) => {
-  const { title, content } = req.body;
+  const { title, content, authorId } = req.body;
 
-  const post = await new Post({ title, content }).save().catch(next);
+  const post = await new Post({
+    title,
+    content,
+    author: Types.ObjectId(authorId),
+  })
+    .save()
+    .catch(next);
 
   res.json(post);
 };
