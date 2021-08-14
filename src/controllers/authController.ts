@@ -5,9 +5,9 @@ import bcrypt from "bcryptjs";
 
 import { JWT_SECRET } from "../utils/secrets";
 import User from "../models/user";
-import { authorizeUser } from "../middleware/authentication";
+import { verifyToken } from "../middleware/authentication";
 
-// TODO: validators
+// TODO: registration validators
 // - usernameIsUnique
 // - passwords match
 // - (anything else, eg pw & username content requirements)
@@ -61,6 +61,6 @@ const getProtectedContent: RequestHandler = (req, res, next) => {
 export const postLogin: RequestHandler[] = [loginUser];
 export const postRegister: RequestHandler[] = [registerUser];
 export const getProtected: RequestHandler[] = [
-  authorizeUser,
+  verifyToken,
   getProtectedContent,
 ];

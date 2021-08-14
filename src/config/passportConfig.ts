@@ -30,7 +30,8 @@ const getLocal = () => {
   });
 };
 
-// TODO: should it be timed?...
+// TODO: add expiry
+// TODO: refresh tokens
 const getJwt = () => {
   return new JwtStrategy(
     {
@@ -38,7 +39,6 @@ const getJwt = () => {
       secretOrKey: JWT_SECRET,
     },
     async (jwtPayload, done) => {
-      console.log(jwtPayload);
       const user = await User.findById(jwtPayload._id).exec().catch(done);
 
       console.log(user);

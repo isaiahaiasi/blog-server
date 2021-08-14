@@ -4,8 +4,7 @@ interface Post {
   title: string;
   content: string;
   // author: Schema.Types.ObjectId;
-  // comments: Schema.Types.ObjectId[]; // ? required vs optional?
-  // publishedAt: Schema.Types.Date; // ? vs vanilla Date?
+  // publishedAt: Schema.Types.Date;
   // do I need to include createdAt timestamp here to access it?...
 }
 
@@ -13,8 +12,7 @@ const postSchema = new Schema<Post>(
   {
     title: { type: String, required: true },
     content: { type: String, required: true },
-    // author: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    // comments: { type: [Schema.Types.ObjectId], ref: "Comment"},
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
     // publishedAt: { type: Schema.Types.Date, required: true },
   },
   {
