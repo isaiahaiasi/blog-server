@@ -5,8 +5,7 @@ interface IUser {
   password: string;
   // TODO:
   // dateCreated
-  // ? posts
-  // ? likedPosts
+  // likedPosts
 }
 
 const userSchema = new Schema<IUser>({

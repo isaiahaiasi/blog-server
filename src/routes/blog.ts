@@ -1,5 +1,5 @@
 import express from "express";
-import { getBlogs, postBlog } from "../controllers/blogController";
+import { getBlogById, getBlogs, postBlog } from "../controllers/blogController";
 import sendNotImplemented from "../utils/tempControllers";
 
 const blogRouter = express.Router();
@@ -11,7 +11,7 @@ blogRouter.get("/", getBlogs);
 blogRouter.post("/", postBlog);
 
 // Get a specific blog
-blogRouter.get("/:blogid", sendNotImplemented("GET /blog/:blogid"));
+blogRouter.get("/:blogid", getBlogById);
 
 // Update a specific blog
 blogRouter.put("/:blogid", sendNotImplemented("PUT /blog/:blogid"));
