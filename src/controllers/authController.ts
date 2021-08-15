@@ -1,16 +1,16 @@
 import { RequestHandler } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
-
 import { JWT_SECRET } from "../utils/secrets";
 import User from "../models/user";
+
 import {
-  passwordsMatchValidator,
-  passwordValidator,
-  usernameValidator,
+  validatePasswordsMatch,
+  validatePassword,
+  validateUsername,
 } from "../middleware/userValidators";
 import { validatorHandler } from "../middleware/validatorHandler";
+import { hashPassword } from "../middleware/authentication";
 
 const loginUser: RequestHandler = (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
@@ -43,7 +43,7 @@ const registerUser: RequestHandler = async (req, res, next) => {
 
   try {
     // hash password
-    const pwHash = await bcrypt.hash(password, 10);
+    const pwHash = await hashPassword(password);
 
     // create user and save
     const user = await new User({ username, password: pwHash }).save();
@@ -61,9 +61,9 @@ const registerUser: RequestHandler = async (req, res, next) => {
 export const postLogin: RequestHandler[] = [loginUser];
 
 export const postRegister: RequestHandler[] = [
-  usernameValidator,
-  passwordValidator,
-  passwordsMatchValidator,
+  validateUsername,
+  validatePassword,
+  validatePasswordsMatch,
   validatorHandler,
   registerUser,
 ];

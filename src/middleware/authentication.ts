@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import passport from "passport";
+import bcrypt from "bcryptjs";
 
 // ! Don't know where this should actually go...
 declare global {
@@ -25,8 +26,6 @@ export const verifySameUser: RequestHandler = (req, res, next) => {
   }
 };
 
-// ! TEMP - for debugging
-export const logHeaders: RequestHandler = (req, res, next) => {
-  console.log("headers:", req.headers);
-  next();
+export const hashPassword = async (password: string): Promise<string> => {
+  return await bcrypt.hash(password, 10);
 };

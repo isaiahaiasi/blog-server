@@ -1,10 +1,12 @@
 import express from "express";
 import { postRegister } from "../controllers/authController";
 import {
+  deleteUser,
   getUser,
   getUserPosts,
   getUsers,
   getUserVerified,
+  putUser,
 } from "../controllers/userController";
 import sendNotImplemented from "../utils/tempControllers";
 
@@ -23,10 +25,10 @@ userRouter.post("/", postRegister);
 userRouter.get("/:userid", getUserVerified);
 
 // update a specific user
-userRouter.put("/:userid", sendNotImplemented("PUT /user/:userid"));
+userRouter.put("/:userid", putUser);
 
 // delete a specific user
-userRouter.delete("/:userid", sendNotImplemented("DELETE /user/:userid"));
+userRouter.delete("/:userid", deleteUser);
 
 // * USER RESOURCES
 

@@ -5,7 +5,7 @@ import User from "../models/user";
 
 // TODO: sanitization?
 
-export const usernameValidator = body("username")
+export const validateUsername = body("username")
   .trim()
   .isLength({ min: 4 })
   .withMessage("Username must be at least 4 characters long.")
@@ -25,13 +25,13 @@ export const usernameValidator = body("username")
     }
   });
 
-export const passwordValidator = body("password")
+export const validatePassword = body("password")
   .isLength({ min: 8 })
   .withMessage("Password must be at least 8 characters long");
 
 // is there a way to check password matches, without req???
 // because then I could just use .equals()...
-export const passwordsMatchValidator = body("passwordConfirm").custom(
+export const validatePasswordsMatch = body("passwordConfirm").custom(
   (value, { req }) => {
     console.log(req.body);
     console.log("value:", value);
