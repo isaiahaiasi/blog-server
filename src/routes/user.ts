@@ -6,6 +6,7 @@ import {
   getUserPosts,
   getUsers,
   getUserVerified,
+  postUserPost,
   putUser,
 } from "../controllers/userController";
 import sendNotImplemented from "../utils/tempControllers";
@@ -34,6 +35,9 @@ userRouter.delete("/:userid", deleteUser);
 
 // get all blog posts from this user
 userRouter.get("/:userid/blog", getUserPosts);
+
+// post a blog post by this user
+userRouter.post("/:userid/blog", postUserPost);
 
 // get all liked posts from this user
 userRouter.get("/:userid/liked", sendNotImplemented("GET /user/:userid/liked"));

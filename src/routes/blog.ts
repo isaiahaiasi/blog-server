@@ -1,5 +1,5 @@
 import express from "express";
-import { getBlogById, getBlogs, postBlog } from "../controllers/blogController";
+import { getBlogById, getBlogs } from "../controllers/blogController";
 import sendNotImplemented from "../utils/tempControllers";
 
 const blogRouter = express.Router();
@@ -8,7 +8,8 @@ const blogRouter = express.Router();
 blogRouter.get("/", getBlogs);
 
 // Create a new blog
-blogRouter.post("/", postBlog);
+// ! moved to user/blog - not sure which way to go on that...
+// blogRouter.post("/", postBlog);
 
 // Get a specific blog
 blogRouter.get("/:blogid", getBlogById);

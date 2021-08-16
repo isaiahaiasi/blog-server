@@ -1,23 +1,23 @@
-import { Schema, model } from "mongoose";
+import { Types, Schema, model } from "mongoose";
 
-interface Post {
+export interface IPost {
   title: string;
   content: string;
-  // author: Schema.Types.ObjectId;
-  // publishedAt: Schema.Types.Date;
+  author: Types.ObjectId;
+  publishDate: Schema.Types.Date;
   // do I need to include createdAt timestamp here to access it?...
 }
 
-const postSchema = new Schema<Post>(
+const postSchema = new Schema<IPost>(
   {
     title: { type: String, required: true },
     content: { type: String, required: true },
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    // publishedAt: { type: Schema.Types.Date, required: true },
+    publishDate: { type: Schema.Types.Date, required: true },
   },
   {
     timestamps: true,
   }
 );
 
-export default model<Post>("Post", postSchema);
+export default model<IPost>("Post", postSchema);

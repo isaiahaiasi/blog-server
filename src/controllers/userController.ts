@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { Types } from "mongoose";
-import Post from "../models/post";
+import Post, { IPost } from "../models/post";
 import User from "../models/user";
 import {
   verifyToken,
@@ -21,12 +21,6 @@ export const getUser: RequestHandler = async (req, res, next) => {
   console.log("logged in user:", req.user?.username);
   const user = await User.findById(userId, "username").exec().catch(next);
   res.json(user);
-};
-
-export const getUserPosts: RequestHandler = async (req, res, next) => {
-  const userId = Types.ObjectId(req.params.userid);
-  const posts = await Post.find({ author: userId }).exec().catch(next);
-  res.json(posts);
 };
 
 const getAllUsers: RequestHandler = async (req, res, next) => {
@@ -71,6 +65,40 @@ const deleteUserFromDatabase: RequestHandler = async (req, res, next) => {
   }
 };
 
+// User resources
+export const getUserPostsFromDatabase: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const author = Types.ObjectId(req.params.userid);
+  const posts = await Post.findOne({ author }).exec().catch(next);
+
+  posts ? res.json(posts) : res.json({ errors: [{ msg: "No user posts" }] });
+};
+
+export const postUserPostToDatabase: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const { title, content, publishDate } = req.body;
+
+  // should already be verified by preceding middleware
+  const author = Types.ObjectId(req.params.userid);
+
+  const post = await new Post({
+    title,
+    content,
+    author,
+    publishDate,
+  })
+    .save()
+    .catch(next);
+
+  res.json(post);
+};
+
 // * Controller Arrays
 // Group handler with middleware specific to it
 // Can be exported and set as a request handler like individual handler
@@ -108,4 +136,19 @@ export const deleteUser: RequestHandler[] = [
   verifyToken,
   verifySameUser,
   deleteUserFromDatabase,
+];
+
+// user resources
+// ! TEMP verification in place for testing
+export const getUserPosts: RequestHandler[] = [
+  verifyToken,
+  verifySameUser,
+  getUserPostsFromDatabase,
+];
+
+export const postUserPost: RequestHandler[] = [
+  // TODO: post validation
+  verifyToken,
+  verifySameUser,
+  postUserPostToDatabase,
 ];
