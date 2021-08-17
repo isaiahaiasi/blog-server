@@ -1,7 +1,9 @@
 // Both user & auth controllers share these validators
-
 import { body } from "express-validator";
 import User from "../models/User";
+
+import createDebug from "debug";
+const debug = createDebug("app:validation");
 
 // TODO: sanitization?
 
@@ -14,7 +16,7 @@ export const validateUsername = body("username")
     const matchingUser = await User.findOne({ username: value })
       .exec()
       .catch((err) => {
-        console.log(err);
+        debug(err);
         throw new Error("Something went wrong!");
       });
 
@@ -33,9 +35,8 @@ export const validatePassword = body("password")
 // because then I could just use .equals()...
 export const validatePasswordsMatch = body("passwordConfirm").custom(
   (value, { req }) => {
-    console.log(req.body);
-    console.log("value:", value);
-    console.log("req.body.password:", req.body.password);
+    debug(req.body);
+    debug("value: (arg to validatePasswordsMatch)", value);
     if (value !== req.body.password) {
       throw new Error("Passwords must match!");
     } else {

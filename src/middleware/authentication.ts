@@ -2,6 +2,9 @@ import { RequestHandler } from "express";
 import passport from "passport";
 import bcrypt from "bcryptjs";
 
+import createDebug from "debug";
+const debug = createDebug("app:auth");
+
 // ! Don't know where this should actually go...
 declare global {
   namespace Express {
@@ -21,7 +24,7 @@ export const verifySameUser: RequestHandler = (req, res, next) => {
   if (req.user && req.user._id.toString() === req.params.userid) {
     next();
   } else {
-    console.log("Failed user match");
+    debug("Failed user match");
     next({ message: "Failed user match", status: 403 });
   }
 };

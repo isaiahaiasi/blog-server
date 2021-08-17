@@ -6,14 +6,17 @@ import Comment from "../models/Comment";
 
 import Post, { IPost } from "../models/Post";
 
+import createDebug from "debug";
+const debug = createDebug("app:endpoints");
+
 export const getBlogs: RequestHandler = async (req, res, next) => {
-  console.log("getting blogs...");
+  debug("getting blogs...");
   const posts = await Post.find({}).exec().catch(next);
   res.json(posts);
 };
 
 export const getBlogById: RequestHandler = async (req, res, next) => {
-  console.log(`Getting blog ${req.params.blogid}`);
+  debug(`Getting blog ${req.params.blogid}`);
 
   const post = await Post.findById(Types.ObjectId(req.params.blogid))
     .exec()

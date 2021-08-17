@@ -1,5 +1,7 @@
 import { RequestHandler } from "express";
-import { validationResult, body } from "express-validator";
+import { validationResult } from "express-validator";
+import createDebug from "debug";
+const debug = createDebug("app:validation");
 
 export const validatorHandler: RequestHandler = (req, res, next) => {
   const errors = validationResult(req);
@@ -17,12 +19,12 @@ export const validatorHandler: RequestHandler = (req, res, next) => {
 export const ifPresent =
   (validator: RequestHandler, field: string): RequestHandler =>
   (req, res, next) => {
-    console.log("if present:", field);
+    debug("if present:", field);
     if (req.body[field]) {
-      console.log("if present:", true);
+      debug("if present:", true);
       validator(req, res, next);
     } else {
-      console.log("if present:", false);
+      debug("if present:", false);
       next();
     }
   };

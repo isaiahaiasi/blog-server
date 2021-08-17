@@ -1,8 +1,7 @@
-import express from "express";
-import mongoose from "mongoose";
-
 // config imports
 import { PORT, MONGODB_URI } from "./utils/secrets";
+import express from "express";
+import mongoose from "mongoose";
 
 // middleware imports
 import cors from "cors";

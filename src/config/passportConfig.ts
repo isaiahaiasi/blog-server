@@ -1,10 +1,11 @@
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { compare } from "bcryptjs";
-
 import User from "../models/User";
-
 import { JWT_SECRET } from "../utils/secrets";
+import createDebug from "debug";
+
+const debug = createDebug("app:auth");
 
 // TODO: REGISTERING new user
 
@@ -39,7 +40,7 @@ const getJwt = () => {
       secretOrKey: JWT_SECRET,
     },
     async (jwtPayload, done) => {
-      console.log("jwtPayload:", jwtPayload);
+      debug("jwtPayload:%O", jwtPayload);
 
       // TODO: I might be able to omit the call to the db,
       //  since the user info IS the jwtPayload?
