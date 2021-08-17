@@ -18,7 +18,6 @@ import { ifPresent, validatorHandler } from "../middleware/validatorHandler";
 
 export const getUser: RequestHandler = async (req, res, next) => {
   const userId = Types.ObjectId(req.params.userid);
-  console.log("logged in user:", req.user?.username);
   const user = await User.findById(userId, "username").exec().catch(next);
   res.json(user);
 };

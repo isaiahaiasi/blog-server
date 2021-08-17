@@ -15,3 +15,7 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.status(err?.status ?? 500);
   res.json({ errors: [{ msg: res.locals.message }] });
 };
+
+export const getNotFoundErrorResponse = (name: string) => ({
+  errors: [{ msg: `${name} not found` }],
+});

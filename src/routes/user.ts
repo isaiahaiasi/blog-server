@@ -18,17 +18,10 @@ const userRouter = express.Router();
 // get list of all users
 userRouter.get("/", getUsers);
 
-// create a new user
-// ? Idk if this should be in this router
+// create/get/update/delete a user
 userRouter.post("/", postRegister);
-
-// get a specific user
 userRouter.get("/:userid", getUserVerified);
-
-// update a specific user
 userRouter.put("/:userid", putUser);
-
-// delete a specific user
 userRouter.delete("/:userid", deleteUser);
 
 // * USER RESOURCES
@@ -37,6 +30,7 @@ userRouter.delete("/:userid", deleteUser);
 userRouter.get("/:userid/blog", getUserPosts);
 
 // post a blog post by this user
+//! not really sure this should be here...
 userRouter.post("/:userid/blog", postUserPost);
 
 // get all liked posts from this user
