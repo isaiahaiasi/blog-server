@@ -1,5 +1,13 @@
 import express from "express";
-import { getBlogById, getBlogs } from "../controllers/blogController";
+import {
+  deleteBlog,
+  getBlogById,
+  getBlogs,
+  getPostCommentsFromDatabase,
+  postComment,
+  updateBlog,
+} from "../controllers/blogController";
+import { postUserPost } from "../controllers/userController";
 import sendNotImplemented from "../utils/tempControllers";
 
 const blogRouter = express.Router();
@@ -15,26 +23,15 @@ blogRouter.get("/", getBlogs);
 blogRouter.get("/:blogid", getBlogById);
 
 // Update a specific blog
-blogRouter.put("/:blogid", sendNotImplemented("PUT /blog/:blogid"));
+blogRouter.put("/:blogid", updateBlog);
 
 // Delete a specific blog
-blogRouter.delete("/:blogid", sendNotImplemented("DELETE /blog/:blogid"));
+blogRouter.delete("/:blogid", deleteBlog);
 
 // COMMENTS
 // (currently, do not plan to enable updating a comment or get a specific comment)
-blogRouter.get(
-  "/:blogid/comment",
-  sendNotImplemented("GET /blog/:blogid/comment")
-);
+blogRouter.get("/:blogid/comment", getPostCommentsFromDatabase);
 
-blogRouter.post(
-  "/:blogid/comment",
-  sendNotImplemented("POST /blog/:blogid/comment")
-);
-
-blogRouter.delete(
-  "/:blogid/comment/:commentid",
-  sendNotImplemented("DELETE /blog/:blogid/comment/:commentid")
-);
+blogRouter.post("/:blogid/comment", postComment);
 
 export default blogRouter;

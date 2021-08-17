@@ -2,8 +2,9 @@ import { RequestHandler } from "express";
 import { Types } from "mongoose";
 import { verifyToken } from "../middleware/authentication";
 import { getNotFoundErrorResponse } from "../middleware/errorHandler";
+import Comment from "../models/Comment";
 
-import Post, { IPost } from "../models/post";
+import Post, { IPost } from "../models/Post";
 
 export const getBlogs: RequestHandler = async (req, res, next) => {
   console.log("getting blogs...");
@@ -21,12 +22,39 @@ export const getBlogById: RequestHandler = async (req, res, next) => {
   res.json(post);
 };
 
+export const getPostCommentsFromDatabase: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const blogId = Types.ObjectId(req.params.blogid);
+  const comments = await Comment.find({ post: blogId }).exec().catch(next);
+
+  if (comments) {
+    res.json(comments);
+  } else {
+    res
+      .status(400)
+      .json(
+        getNotFoundErrorResponse(`Comments for blog id: ${req.params.blogid}`)
+      );
+  }
+};
+
 const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
   const blogId = Types.ObjectId(req.params.blogid);
-  const { title, content, publishDate } = req.body;
-  const postUpdate: Partial<IPost> = { title, content, publishDate };
 
-  const updatedPost = Post.findByIdAndUpdate(blogId, postUpdate).catch(next);
+  // Hacky way to only add property if not null/undefined
+  const { title, content, publishDate } = req.body;
+  const postUpdate: Partial<IPost> = {
+    ...(title != null && { title }),
+    ...(content != null && { content }),
+    ...(publishDate != null && { publishDate }),
+  };
+
+  const updatedPost = await Post.findByIdAndUpdate(blogId, postUpdate).catch(
+    next
+  );
 
   return updatedPost
     ? res.json(updatedPost)
@@ -38,7 +66,7 @@ const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
 const deleteBlogInDatabase: RequestHandler = async (req, res, next) => {
   const blogId = Types.ObjectId(req.params.blogid);
 
-  const deletedPost = Post.findByIdAndDelete(blogId).catch(next);
+  const deletedPost = await Post.findByIdAndDelete(blogId).catch(next);
 
   return deletedPost
     ? res.json(deletedPost)
@@ -47,13 +75,26 @@ const deleteBlogInDatabase: RequestHandler = async (req, res, next) => {
         .json(getNotFoundErrorResponse(`Blog id: ${req.params.blogid}`));
 };
 
-// TODO:
-//! Once comment model is implemented
-// const postCommentInDatabase: RequestHandler = async (req, res, next) => {
-//   const blogId = Types.ObjectId(req.params.blogid);
-// }
+const postCommentToDatabase: RequestHandler = async (req, res, next) => {
+  const blogId = Types.ObjectId(req.params.blogid);
+  const post = await Post.findById(blogId).exec().catch(next);
 
-const updateBlog: RequestHandler[] = [
+  if (post) {
+    const { content } = req.body;
+    const postId = post._id;
+    const author = req.user?._id;
+    const comment = await new Comment({ content, author, post: postId })
+      .save()
+      .catch(next);
+    res.json(comment);
+  } else {
+    res.status(400).json(getNotFoundErrorResponse(req.params.blogid));
+  }
+};
+
+//* Controller arrays
+
+export const updateBlog: RequestHandler[] = [
   verifyToken,
   // TODO: confirm logged in user matches author of post
   // TODO: validate(/sanitize?) inputs:
@@ -63,17 +104,15 @@ const updateBlog: RequestHandler[] = [
   updateBlogInDatabase,
 ];
 
-const deleteBlog: RequestHandler[] = [
+export const deleteBlog: RequestHandler[] = [
   verifyToken,
   // TODO: confirm logged in user matches author of post
   deleteBlogInDatabase,
 ];
 
-// TODO:
-//! Once comment model is implemented
-// const postComment: RequestHandler[] = [
-//   verifyToken,
-//   // TODO: validate(/sanitize?) inputs:
-//   // - content
-//   postCommentToDatabase
-// ]
+export const postComment: RequestHandler[] = [
+  verifyToken,
+  // TODO: validate(/sanitize?) inputs:
+  // - content
+  postCommentToDatabase,
+];

@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { Types } from "mongoose";
-import Post, { IPost } from "../models/post";
-import User from "../models/user";
+import Post, { IPost } from "../models/Post";
+import User from "../models/User";
 import {
   verifyToken,
   verifySameUser,

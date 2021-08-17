@@ -1,7 +1,7 @@
 // Both user & auth controllers share these validators
 
 import { body } from "express-validator";
-import User from "../models/user";
+import User from "../models/User";
 
 // TODO: sanitization?
 

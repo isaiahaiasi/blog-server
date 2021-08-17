@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../utils/secrets";
-import User from "../models/user";
+import User from "../models/User";
 
 import {
   validatePasswordsMatch,

@@ -2,7 +2,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { compare } from "bcryptjs";
 
-import User from "../models/user";
+import User from "../models/User";
 
 import { JWT_SECRET } from "../utils/secrets";
 
@@ -41,10 +41,9 @@ const getJwt = () => {
     async (jwtPayload, done) => {
       console.log("jwtPayload:", jwtPayload);
 
-      // I should be able to omit the call to the db,
-      //  since the user info IS the jwtPayload
-      // const user = await User.findById(jwtPayload._id).exec().catch(done);
-      const user = jwtPayload;
+      // TODO: I might be able to omit the call to the db,
+      //  since the user info IS the jwtPayload?
+      const user = await User.findById(jwtPayload._id).exec().catch(done);
 
       if (!user) {
         return done(null, false, {

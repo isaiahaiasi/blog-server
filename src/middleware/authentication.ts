@@ -18,7 +18,7 @@ export const verifyToken: RequestHandler = passport.authenticate("jwt", {
 });
 
 export const verifySameUser: RequestHandler = (req, res, next) => {
-  if (req.user && req.user._id === req.params.userid) {
+  if (req.user && req.user._id.toString() === req.params.userid) {
     next();
   } else {
     console.log("Failed user match");
