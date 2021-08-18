@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
-import { Types } from "mongoose";
-import Post, { IPost } from "../models/Post";
+import Post from "../models/Post";
 import User from "../models/User";
 import {
   verifyToken,
@@ -13,11 +12,17 @@ import {
   validateUsername,
 } from "../middleware/userValidators";
 import { ifPresent, validatorHandler } from "../middleware/validatorHandler";
+import { castObjectId } from "../utils/mongooseHelpers";
 
 // * Controllers
 
 export const getUser: RequestHandler = async (req, res, next) => {
-  const userId = Types.ObjectId(req.params.userid);
+  const userId = castObjectId(req.params.userid);
+
+  if (!userId) {
+    return next();
+  }
+
   const user = await User.findById(userId, "username").exec().catch(next);
   res.json(user);
 };
@@ -28,7 +33,11 @@ const getAllUsers: RequestHandler = async (req, res, next) => {
 };
 
 const putUserInDatabase: RequestHandler = async (req, res, next) => {
-  const userId = Types.ObjectId(req.params.userid);
+  const userId = castObjectId(req.params.userid);
+
+  if (!userId) {
+    return next();
+  }
 
   const updatedUser: {
     username?: string;
@@ -53,7 +62,12 @@ const putUserInDatabase: RequestHandler = async (req, res, next) => {
 };
 
 const deleteUserFromDatabase: RequestHandler = async (req, res, next) => {
-  const userId = Types.ObjectId(req.params.userid);
+  const userId = castObjectId(req.params.userid);
+
+  if (!userId) {
+    return next();
+  }
+
   const user = await User.findByIdAndDelete(userId).catch(next);
 
   if (user) {
@@ -70,7 +84,12 @@ export const getUserPostsFromDatabase: RequestHandler = async (
   res,
   next
 ) => {
-  const author = Types.ObjectId(req.params.userid);
+  const author = castObjectId(req.params.userid);
+
+  if (!author) {
+    return next();
+  }
+
   const posts = await Post.findOne({ author }).exec().catch(next);
 
   posts ? res.json(posts) : res.json({ errors: [{ msg: "No user posts" }] });
@@ -84,7 +103,11 @@ export const postUserPostToDatabase: RequestHandler = async (
   const { title, content, publishDate } = req.body;
 
   // should already be verified by preceding middleware
-  const author = Types.ObjectId(req.params.userid);
+  const author = castObjectId(req.params.userid);
+
+  if (!author) {
+    return next();
+  }
 
   const post = await new Post({
     title,

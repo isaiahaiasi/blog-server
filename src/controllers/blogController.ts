@@ -1,10 +1,11 @@
 import { RequestHandler } from "express";
-import { Types } from "mongoose";
 import { verifyToken } from "../middleware/authentication";
 import { getNotFoundErrorResponse } from "../middleware/errorHandler";
 import Comment from "../models/Comment";
 
 import Post, { IPost } from "../models/Post";
+
+import { castObjectId } from "../utils/mongooseHelpers";
 
 import createDebug from "debug";
 const debug = createDebug("app:endpoints");
@@ -18,9 +19,13 @@ export const getBlogs: RequestHandler = async (req, res, next) => {
 export const getBlogById: RequestHandler = async (req, res, next) => {
   debug(`Getting blog ${req.params.blogid}`);
 
-  const post = await Post.findById(Types.ObjectId(req.params.blogid))
-    .exec()
-    .catch(next);
+  const blogId = castObjectId(req.params.blogid);
+
+  if (!blogId) {
+    return next();
+  }
+
+  const post = await Post.findById(blogId).exec().catch(next);
 
   res.json(post);
 };
@@ -30,7 +35,12 @@ export const getPostCommentsFromDatabase: RequestHandler = async (
   res,
   next
 ) => {
-  const blogId = Types.ObjectId(req.params.blogid);
+  const blogId = castObjectId(req.params.blogid);
+
+  if (!blogId) {
+    return next();
+  }
+
   const comments = await Comment.find({ post: blogId }).exec().catch(next);
 
   if (comments) {
@@ -45,7 +55,11 @@ export const getPostCommentsFromDatabase: RequestHandler = async (
 };
 
 const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
-  const blogId = Types.ObjectId(req.params.blogid);
+  const blogId = castObjectId(req.params.blogid);
+
+  if (!blogId) {
+    return next();
+  }
 
   // Hacky way to only add property if not null/undefined
   const { title, content, publishDate } = req.body;
@@ -67,7 +81,11 @@ const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
 };
 
 const deleteBlogInDatabase: RequestHandler = async (req, res, next) => {
-  const blogId = Types.ObjectId(req.params.blogid);
+  const blogId = castObjectId(req.params.blogid);
+
+  if (!blogId) {
+    return next();
+  }
 
   const deletedPost = await Post.findByIdAndDelete(blogId).catch(next);
 
@@ -79,7 +97,12 @@ const deleteBlogInDatabase: RequestHandler = async (req, res, next) => {
 };
 
 const postCommentToDatabase: RequestHandler = async (req, res, next) => {
-  const blogId = Types.ObjectId(req.params.blogid);
+  const blogId = castObjectId(req.params.blogid);
+
+  if (!blogId) {
+    return next();
+  }
+
   const post = await Post.findById(blogId).exec().catch(next);
 
   if (post) {
