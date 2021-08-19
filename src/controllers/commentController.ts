@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
-import { verifyToken } from "../middleware/authentication";
+import { verifySameUser, verifyToken } from "../middleware/authentication";
 import { getNotFoundErrorResponse } from "../middleware/errorHandler";
+import { commentValidators } from "../middleware/postValidators";
 import Comment from "../models/Comment";
 import { castObjectId } from "../utils/mongooseHelpers";
 
@@ -22,6 +23,7 @@ const deleteCommentFromDatabase: RequestHandler = async (req, res, next) => {
 
 export const deleteComment = [
   verifyToken,
-  // TODO: authorize
+  verifySameUser,
+  ...commentValidators,
   deleteCommentFromDatabase,
 ];

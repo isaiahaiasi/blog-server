@@ -10,9 +10,11 @@ import {
   validatePasswordsMatch,
   validatePassword,
   validateUsername,
+  passwordValidator,
 } from "../middleware/userValidators";
 import { ifPresent, validatorHandler } from "../middleware/validatorHandler";
 import { castObjectId } from "../utils/mongooseHelpers";
+import { postValidators } from "../middleware/postValidators";
 
 // * Controllers
 
@@ -142,6 +144,7 @@ export const getUsers: RequestHandler[] = [
 ];
 
 export const putUser: RequestHandler[] = [
+  // TODO: properly handle validation of optional params
   ifPresent(validateUsername, "username"),
   ifPresent(validatePassword, "password"),
   ifPresent(validatePasswordsMatch, "passwordConfirm"),
@@ -153,15 +156,13 @@ export const putUser: RequestHandler[] = [
 
 // requires user to enter their password to delete
 export const deleteUser: RequestHandler[] = [
-  validatePassword,
-  validatorHandler,
+  ...passwordValidator,
   verifyToken,
   verifySameUser,
   deleteUserFromDatabase,
 ];
 
 // user resources
-// ! TEMP verification in place for testing
 export const getUserPosts: RequestHandler[] = [
   verifyToken,
   verifySameUser,
@@ -169,8 +170,8 @@ export const getUserPosts: RequestHandler[] = [
 ];
 
 export const postUserPost: RequestHandler[] = [
-  // TODO: post validation
   verifyToken,
   verifySameUser,
+  ...postValidators,
   postUserPostToDatabase,
 ];

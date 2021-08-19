@@ -2,12 +2,11 @@ import { RequestHandler } from "express";
 import { verifyToken } from "../middleware/authentication";
 import { getNotFoundErrorResponse } from "../middleware/errorHandler";
 import Comment from "../models/Comment";
-
 import Post, { IPost } from "../models/Post";
-
 import { castObjectId } from "../utils/mongooseHelpers";
-
+import { postValidators } from "../middleware/postValidators";
 import createDebug from "debug";
+
 const debug = createDebug("app:endpoints");
 
 export const getBlogs: RequestHandler = async (req, res, next) => {
@@ -123,22 +122,20 @@ const postCommentToDatabase: RequestHandler = async (req, res, next) => {
 export const updateBlog: RequestHandler[] = [
   verifyToken,
   // TODO: confirm logged in user matches author of post
-  // TODO: validate(/sanitize?) inputs:
-  //    - Title
-  //    - Content
-  //    - PublishDate
+  ...postValidators,
   updateBlogInDatabase,
 ];
 
 export const deleteBlog: RequestHandler[] = [
   verifyToken,
-  // TODO: confirm logged in user matches author of post
+  // TODO: authorization
+  ...postValidators,
   deleteBlogInDatabase,
 ];
 
 export const postComment: RequestHandler[] = [
   verifyToken,
-  // TODO: validate(/sanitize?) inputs:
-  // - content
+  // TODO: authorization
+  ...postValidators,
   postCommentToDatabase,
 ];

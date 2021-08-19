@@ -3,6 +3,7 @@ import { body } from "express-validator";
 import User from "../models/User";
 
 import createDebug from "debug";
+import { validatorHandler } from "./validatorHandler";
 const debug = createDebug("app:validation");
 
 // TODO: sanitization?
@@ -31,7 +32,7 @@ export const validatePassword = body("password")
   .isLength({ min: 8 })
   .withMessage("Password must be at least 8 characters long");
 
-// is there a way to check password matches, without req???
+// is there a way to check password matches, without req?
 // because then I could just use .equals()...
 export const validatePasswordsMatch = body("passwordConfirm").custom(
   (value, { req }) => {
@@ -43,4 +44,21 @@ export const validatePasswordsMatch = body("passwordConfirm").custom(
       return true;
     }
   }
-); // ? Do I need withMessage for this?
+);
+
+// not really sure what the best way to group these is
+//! NOTE: currently the "validatorHandler" middleware MUST follow the validators
+
+export const passwordValidator = [validatePassword, validatorHandler];
+
+export const loginValidators = [
+  validateUsername,
+  validatePassword,
+  validatorHandler,
+];
+
+export const registrationValidators = [
+  ...loginValidators,
+  validatePasswordsMatch,
+  validatorHandler,
+];
