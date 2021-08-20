@@ -92,7 +92,14 @@ export const getUserPostsFromDatabase: RequestHandler = async (
     return next();
   }
 
-  const posts = await Post.findOne({ author }).exec().catch(next);
+  // find posts with matching author, with publish dates NOT in the future
+  // sort by descending publishDate
+  // TODO: different endpoints: (authorized) "all posts" vs. unauth'd "published posts"
+  const currentDate = new Date();
+  const posts = await Post.find({ author, publishDate: { $lte: currentDate } })
+    .sort({ publishDate: -1 })
+    .exec()
+    .catch(next);
 
   posts ? res.json(posts) : res.json({ errors: [{ msg: "No user posts" }] });
 };
