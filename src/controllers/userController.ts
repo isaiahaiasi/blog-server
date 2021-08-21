@@ -98,6 +98,7 @@ export const getUserPostsFromDatabase: RequestHandler = async (
   const currentDate = new Date();
   const posts = await Post.find({ author, publishDate: { $lte: currentDate } })
     .sort({ publishDate: -1 })
+    .populate("author", "-password")
     .exec()
     .catch(next);
 

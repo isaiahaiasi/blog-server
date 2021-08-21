@@ -11,7 +11,11 @@ const debug = createDebug("app:endpoints");
 
 export const getBlogs: RequestHandler = async (req, res, next) => {
   debug("getting blogs...");
-  const posts = await Post.find({}).exec().catch(next);
+  const posts = await Post.find({})
+    .sort({ publishDate: -1 })
+    .populate("author", "-password")
+    .exec()
+    .catch(next);
   res.json(posts);
 };
 
@@ -24,7 +28,10 @@ export const getBlogById: RequestHandler = async (req, res, next) => {
     return next();
   }
 
-  const post = await Post.findById(blogId).exec().catch(next);
+  const post = await Post.findById(blogId)
+    .populate("author", "-password")
+    .exec()
+    .catch(next);
 
   res.json(post);
 };
@@ -40,7 +47,10 @@ export const getPostCommentsFromDatabase: RequestHandler = async (
     return next();
   }
 
-  const comments = await Comment.find({ post: blogId }).exec().catch(next);
+  const comments = await Comment.find({ post: blogId })
+    .populate("author", "-password")
+    .exec()
+    .catch(next);
 
   if (comments) {
     res.json(comments);
