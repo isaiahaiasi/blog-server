@@ -2,33 +2,12 @@ import User, { IUser } from "../models/User";
 import { castObjectId } from "../utils/mongooseHelpers";
 
 // * Query interfaces
-
-interface GetAllUsersFromDB {
-  (): Promise<IUser[]>;
-}
-
-interface GetUserFromDB {
-  (id: string): Promise<IUser | null>;
-}
-
-interface DeleteUserFromDB {
-  (id: string): Promise<IUser | null>;
-}
-
-interface AddUserToDB {
-  (user: IUser): Promise<IUser | null>;
-}
-
-interface PutUserInDB {
-  (id: string, user: Partial<IUser>): Promise<IUser | null>;
-}
-
 interface UserQueries {
-  addUserToDB: AddUserToDB;
-  getUserFromDB: GetUserFromDB;
-  putUserInDB: PutUserInDB;
-  deleteUserFromDB: DeleteUserFromDB;
-  getAllUsersFromDB: GetAllUsersFromDB;
+  addUserToDB: { (user: IUser): Promise<IUser | null> };
+  getUserFromDB: { (id: string): Promise<IUser | null> };
+  putUserInDB: { (id: string, user: Partial<IUser>): Promise<IUser | null> };
+  deleteUserFromDB: { (id: string): Promise<IUser | null> };
+  getAllUsersFromDB: { (): Promise<IUser[]> };
 }
 
 // * Query implementations
