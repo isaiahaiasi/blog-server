@@ -14,7 +14,7 @@ interface DeleteCommentFromDB {
 // ! I'm also not sure what the best way to handle validation is,
 // because I don't necessarily want to make multiple db queries,
 // but also feel like authorization should be it's own link in mw chain.
-const deleteCommentFromMongooseDB: DeleteCommentFromDB = async (id) => {
+const deleteCommentFromMongoDB: DeleteCommentFromDB = async (id) => {
   const commentId = castObjectId(id);
 
   if (!commentId) {
@@ -26,7 +26,7 @@ const deleteCommentFromMongooseDB: DeleteCommentFromDB = async (id) => {
 
 // This, way, I can theoretically just swap out this value
 // with whatever implementation I want.
-const deleteCommentFromDB = deleteCommentFromMongooseDB;
+const deleteCommentFromDB = deleteCommentFromMongoDB;
 
 const deleteCommentFromDBHandler: RequestHandler = async (req, res, next) => {
   try {
@@ -37,8 +37,8 @@ const deleteCommentFromDBHandler: RequestHandler = async (req, res, next) => {
     } else {
       res.status(400).json(getNotFoundErrorResponse(req.params.commentid));
     }
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 

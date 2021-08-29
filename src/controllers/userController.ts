@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import Post from "../models/Post";
-import User from "../models/User";
+import { IUser } from "../models/User";
 import {
   verifyToken,
   verifySameUser,
@@ -15,36 +15,35 @@ import {
 import { ifPresent, validatorHandler } from "../middleware/validatorHandler";
 import { castObjectId } from "../utils/mongooseHelpers";
 import { postValidators } from "../middleware/postValidators";
+import userQueries from "../db-queries/userQueries";
+import { getNotFoundErrorResponse } from "../middleware/errorHandler";
 
-// * Controllers
+const getUserFromDBHandler: RequestHandler = async (req, res, next) => {
+  const { userid } = req.params;
 
-export const getUser: RequestHandler = async (req, res, next) => {
-  const userId = castObjectId(req.params.userid);
-
-  if (!userId) {
-    return next();
+  try {
+    const user = await userQueries.getUserFromDB(userid);
+    if (user) {
+      res.json(user);
+    } else {
+      res.json(getNotFoundErrorResponse(userid));
+    }
+  } catch (err) {
+    next(err);
   }
-
-  const user = await User.findById(userId, "username").exec().catch(next);
-  res.json(user);
 };
 
-const getAllUsers: RequestHandler = async (req, res, next) => {
-  const users = await User.find({}).select("username").exec().catch(next);
-  res.json(users);
+const getAllUsersHandler: RequestHandler = async (req, res, next) => {
+  try {
+    const users = await userQueries.getAllUsersFromDB();
+    res.json(users);
+  } catch (err) {
+    next(err);
+  }
 };
 
-const putUserInDatabase: RequestHandler = async (req, res, next) => {
-  const userId = castObjectId(req.params.userid);
-
-  if (!userId) {
-    return next();
-  }
-
-  const updatedUser: {
-    username?: string;
-    password?: string;
-  } = {};
+const putUserInDBHandler: RequestHandler = async (req, res, next) => {
+  const updatedUser: Partial<IUser> = {};
 
   if (req.body.username) {
     updatedUser.username = req.body.username;
@@ -53,30 +52,30 @@ const putUserInDatabase: RequestHandler = async (req, res, next) => {
     updatedUser.password = await hashPassword(req.body.password);
   }
 
-  const user = await User.findByIdAndUpdate(userId, updatedUser).catch(next);
+  try {
+    const user = await userQueries.putUserInDB(req.params.id, updatedUser);
 
-  if (user) {
-    return res.json(user);
-  } else {
-    // TODO: double check error format consistent
-    return res.status(400).json({ errors: [{ msg: "User not found!" }] });
+    if (user) {
+      return res.json(user);
+    } else {
+      return res
+        .status(400)
+        .json(getNotFoundErrorResponse(`User ${req.params.id}`));
+    }
+  } catch (err) {
+    next(err);
   }
 };
 
 const deleteUserFromDatabase: RequestHandler = async (req, res, next) => {
-  const userId = castObjectId(req.params.userid);
-
-  if (!userId) {
-    return next();
-  }
-
-  const user = await User.findByIdAndDelete(userId).catch(next);
+  const user = await userQueries.deleteUserFromDB(req.params.userid);
 
   if (user) {
     return res.json(user);
   } else {
-    // TODO: double check error format is consistent
-    return res.status(400).json({ errors: [{ msg: "User not found!" }] });
+    return res
+      .status(400)
+      .json(getNotFoundErrorResponse(`User ${req.params.id}`));
   }
 };
 
@@ -139,15 +138,17 @@ export const postUserPostToDatabase: RequestHandler = async (
 //   - authorization middlware
 //   - route handler/response )
 
+export const getUser: RequestHandler[] = [getUserFromDBHandler];
+
 export const getUserVerified: RequestHandler[] = [
   verifyToken,
-  verifySameUser,
-  getUser,
+  // verifySameUser,
+  getUserFromDBHandler,
 ];
 
 export const getUsers: RequestHandler[] = [
   // verifyToken,
-  getAllUsers,
+  getAllUsersHandler,
 ];
 
 export const putUser: RequestHandler[] = [
@@ -158,7 +159,7 @@ export const putUser: RequestHandler[] = [
   validatorHandler,
   verifyToken,
   verifySameUser,
-  putUserInDatabase,
+  putUserInDBHandler,
 ];
 
 // requires user to enter their password to delete

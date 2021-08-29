@@ -2,8 +2,6 @@ import { RequestHandler } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../utils/secrets";
-import User from "../models/User";
-
 import {
   validatePasswordsMatch,
   validatePassword,
@@ -11,6 +9,8 @@ import {
 } from "../middleware/userValidators";
 import { validatorHandler } from "../middleware/validatorHandler";
 import { hashPassword } from "../middleware/authentication";
+import userQueries from "../db-queries/userQueries";
+import { getErrorResponse } from "../middleware/errorHandler";
 
 const loginUser: RequestHandler = (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
@@ -45,10 +45,16 @@ const registerUser: RequestHandler = async (req, res, next) => {
     // hash password
     const pwHash = await hashPassword(password);
 
-    // create user and save
-    const user = await new User({ username, password: pwHash }).save();
+    // create user with the pwHash as the pw
+    const user = await userQueries.addUserToDB({ username, password: pwHash });
 
-    res.json({ msg: "Registration successful!", user });
+    if (user) {
+      res.json({ msg: "Registration successful!", user });
+    } else {
+      res
+        .status(400)
+        .json(getErrorResponse("Could not create new user record"));
+    }
   } catch (err) {
     next(err);
   }
