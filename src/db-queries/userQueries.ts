@@ -4,7 +4,8 @@ import { castObjectId } from "../utils/mongooseHelpers";
 // * Query interfaces
 interface UserQueries {
   addUserToDB: { (user: IUser): Promise<IUser | null> };
-  getUserFromDB: { (id: string): Promise<IUser | null> };
+  getUserFromDBById: { (id: string): Promise<IUser | null> };
+  getUserFromDB: { (userMatch: Partial<IUser>): Promise<IUser | null> };
   putUserInDB: { (id: string, user: Partial<IUser>): Promise<IUser | null> };
   deleteUserFromDB: { (id: string): Promise<IUser | null> };
   getAllUsersFromDB: { (): Promise<IUser[]> };
@@ -19,7 +20,7 @@ const mongoQueries: UserQueries = {
     return new User(user).save();
   },
 
-  getUserFromDB: async (id) => {
+  getUserFromDBById: async (id) => {
     const userId = castObjectId(id);
 
     if (!userId) {
@@ -27,6 +28,10 @@ const mongoQueries: UserQueries = {
     }
 
     return User.findById(userId, "username").exec();
+  },
+
+  getUserFromDB: async (userMatch) => {
+    return User.findOne(userMatch).exec();
   },
 
   getAllUsersFromDB: async () => {
@@ -55,4 +60,5 @@ const mongoQueries: UserQueries = {
 };
 
 // * Export desired implementation
-export default mongoQueries;
+const userQueries = mongoQueries;
+export default userQueries;

@@ -1,33 +1,35 @@
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { compare } from "bcryptjs";
-import User from "../models/User";
 import { JWT_SECRET } from "../utils/secrets";
 import createDebug from "debug";
+import userQueries from "../db-queries/userQueries";
 
 const debug = createDebug("app:auth");
 
-// TODO: REGISTERING new user
-
 const getLocal = () => {
   return new LocalStrategy(async (username, password, done) => {
-    const user = await User.findOne({ username }).exec().catch(done);
+    // get user
+    try {
+      const user = await userQueries.getUserFromDB({ username });
 
-    if (!user) {
-      return done(null, false, {
-        message: "Incorrect username",
-      });
+      if (!user) {
+        return done(null, false, {
+          message: "Incorrect username",
+        });
+      }
+
+      // compare user password to input password
+      const res = await compare(password, user.password);
+
+      if (res) {
+        return done(null, user, { message: "Login successful" });
+      } else {
+        return done(null, false, { message: "Incorrect password" });
+      }
+    } catch (err) {
+      done(err);
     }
-
-    const res = await compare(password, user.password).catch(done);
-
-    if (!res) {
-      return done(null, false, {
-        message: "Incorrect password",
-      });
-    }
-
-    return done(null, user, { message: "Login successful" });
   });
 };
 
@@ -40,19 +42,18 @@ const getJwt = () => {
       secretOrKey: JWT_SECRET,
     },
     async (jwtPayload, done) => {
+      // TODO: ? omit the call to the db, since the user info IS the jwtPayload?
       debug("jwtPayload:%O", jwtPayload);
 
-      // TODO: I might be able to omit the call to the db,
-      //  since the user info IS the jwtPayload?
-      const user = await User.findById(jwtPayload._id).exec().catch(done);
+      try {
+        const user = await userQueries.getUserFromDBById(jwtPayload._id);
 
-      if (!user) {
-        return done(null, false, {
-          message: "Could not find user!",
-        });
+        return user
+          ? done(null, user)
+          : done(null, false, { message: "Could not find user!" });
+      } catch (err) {
+        done(err);
       }
-
-      return done(null, user);
     }
   );
 };

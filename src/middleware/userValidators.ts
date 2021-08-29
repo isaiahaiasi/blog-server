@@ -4,6 +4,7 @@ import User from "../models/User";
 
 import createDebug from "debug";
 import { validatorHandler } from "./validatorHandler";
+import userQueries from "../db-queries/userQueries";
 const debug = createDebug("app:validation");
 
 // TODO: sanitization?
@@ -14,12 +15,7 @@ export const validateUsername = body("username")
   .withMessage("Username must be at least 4 characters long.")
   // verify username is unique:
   .custom(async (value) => {
-    const matchingUser = await User.findOne({ username: value })
-      .exec()
-      .catch((err) => {
-        debug(err);
-        throw new Error("Something went wrong!");
-      });
+    const matchingUser = await userQueries.getUserFromDB({ username: value });
 
     if (matchingUser) {
       throw new Error(`Username "${matchingUser.username}" already exists`);

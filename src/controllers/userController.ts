@@ -24,7 +24,7 @@ const getUserFromDBHandler: RequestHandler = async (req, res, next) => {
   const { userid } = req.params;
 
   try {
-    const user = await userQueries.getUserFromDB(userid);
+    const user = await userQueries.getUserFromDBById(userid);
     if (user) {
       res.json(user);
     } else {
