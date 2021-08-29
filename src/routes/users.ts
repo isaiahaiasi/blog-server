@@ -2,7 +2,6 @@ import express from "express";
 import { postRegister } from "../controllers/authController";
 import {
   deleteUser,
-  getUser,
   getUserPosts,
   getUsers,
   getUserVerified,
@@ -27,26 +26,30 @@ userRouter.delete("/:userid", deleteUser);
 // * USER RESOURCES
 
 // get all blog posts from this user
-userRouter.get("/:userid/blog", getUserPosts);
+userRouter.get("/:userid/blogs", getUserPosts);
 
 // post a blog post by this user
-//! not really sure this should be here...
-userRouter.post("/:userid/blog", postUserPost);
+userRouter.post("/:userid/blogs", postUserPost);
+
+// TODO: "likes" routes
 
 // get all liked posts from this user
-userRouter.get("/:userid/liked", sendNotImplemented("GET /user/:userid/liked"));
+userRouter.get(
+  "/:userid/likes",
+  sendNotImplemented("GET /users/:userid/likes")
+);
 
 // add a new liked post to this user
 // ? not sure if this should have /:blogid ...
 userRouter.post(
-  "/:userid/liked",
-  sendNotImplemented("POST /user/:userid/liked")
+  "/:userid/likes",
+  sendNotImplemented("POST /users/:userid/likes")
 );
 
 // remove a liked post from this user
 userRouter.delete(
-  "/:userid/liked/:blogid",
-  sendNotImplemented("DELETE /user/:userid/liked/:blogid")
+  "/:userid/likes/:blogid",
+  sendNotImplemented("DELETE /user/:userid/likes/:blogid")
 );
 
 export default userRouter;

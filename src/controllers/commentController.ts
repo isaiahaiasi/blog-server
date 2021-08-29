@@ -1,7 +1,6 @@
 import { RequestHandler } from "express";
 import { verifySameUser, verifyToken } from "../middleware/authentication";
 import { getNotFoundErrorResponse } from "../middleware/errorHandler";
-import { commentValidators } from "../middleware/postValidators";
 import Comment from "../models/Comment";
 import { castObjectId } from "../utils/mongooseHelpers";
 

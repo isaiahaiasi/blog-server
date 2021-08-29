@@ -10,11 +10,10 @@ import passport from "passport";
 import { getJwt, getLocal } from "./config/passportConfig";
 
 // router imports
-import apiRouter from "./routes";
-import userRouter from "./routes/user";
-import blogRouter from "./routes/blog";
 import authRouter from "./routes/auth";
-import commentRouter from "./routes/comment";
+import userRouter from "./routes/users";
+import blogRouter from "./routes/blogs";
+import commentRouter from "./routes/comments";
 
 const app = express();
 
@@ -42,10 +41,9 @@ app.route("/").get((req, res) => {
 });
 
 app.use("/api/auth", authRouter);
-app.use("/api/user", userRouter);
-app.use("/api/blog", blogRouter);
-app.use("/api/comment", commentRouter);
-app.use("/api", apiRouter);
+app.use("/api/users", userRouter);
+app.use("/api/blogs", blogRouter);
+app.use("/api/comments", commentRouter);
 
 app.use(catch404);
 app.use(errorHandler);

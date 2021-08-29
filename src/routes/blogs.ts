@@ -7,8 +7,6 @@ import {
   postComment,
   updateBlog,
 } from "../controllers/blogController";
-import { postUserPost } from "../controllers/userController";
-import sendNotImplemented from "../utils/tempControllers";
 
 const blogRouter = express.Router();
 
@@ -16,8 +14,7 @@ const blogRouter = express.Router();
 blogRouter.get("/", getBlogs);
 
 // Create a new blog
-// ! moved to user/blog - not sure which way to go on that...
-// blogRouter.post("/", postBlog);
+// ! moved to /users/blog
 
 // Get a specific blog
 blogRouter.get("/:blogid", getBlogById);
@@ -29,9 +26,9 @@ blogRouter.put("/:blogid", updateBlog);
 blogRouter.delete("/:blogid", deleteBlog);
 
 // COMMENTS
-// (currently, do not plan to enable updating a comment or get a specific comment)
-blogRouter.get("/:blogid/comment", getPostCommentsFromDatabase);
+// (currently no plan to enable updating a comment or get a specific comment)
+blogRouter.get("/:blogid/comments", getPostCommentsFromDatabase);
 
-blogRouter.post("/:blogid/comment", postComment);
+blogRouter.post("/:blogid/comments", postComment);
 
 export default blogRouter;
