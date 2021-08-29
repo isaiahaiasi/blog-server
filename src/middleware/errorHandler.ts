@@ -20,24 +20,20 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 };
 
 // Custom error response generators
-interface SimpleErrorResponse {
+interface SingleErrorResponse {
   msg: string;
 }
 
 interface ErrorResponse {
-  errors: SimpleErrorResponse[];
+  errors: SingleErrorResponse[];
 }
 
-interface ErrorResponseGenerator {
-  (input: any): ErrorResponse;
-}
+export const getSimpleErrorResponse = (msg: string): ErrorResponse => {
+  return {
+    errors: [{ msg: msg }],
+  };
+};
 
-export const getErrorResponse: ErrorResponseGenerator = (msg) => ({
-  errors: [{ msg: msg }],
-});
-
-export const getNotFoundErrorResponse: ErrorResponseGenerator = (
-  name: string
-) => ({
+export const getNotFoundErrorResponse = (name: string): ErrorResponse => ({
   errors: [{ msg: `${name} not found` }],
 });

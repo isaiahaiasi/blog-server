@@ -1,7 +1,9 @@
 import { RequestHandler } from "express";
 import { verifyToken } from "../middleware/authentication";
-import { getNotFoundErrorResponse } from "../middleware/errorHandler";
-import Comment from "../models/Comment";
+import {
+  getSimpleErrorResponse,
+  getNotFoundErrorResponse,
+} from "../middleware/errorHandler";
 import Post, { IPost } from "../models/Post";
 import { castObjectId } from "../utils/mongooseHelpers";
 import {
@@ -9,6 +11,7 @@ import {
   postValidators,
 } from "../middleware/postValidators";
 import createDebug from "debug";
+import commentQueries from "../db-queries/commentQueries";
 
 const debug = createDebug("app:endpoints");
 
@@ -37,36 +40,6 @@ export const getBlogById: RequestHandler = async (req, res, next) => {
     .catch(next);
 
   res.json(post);
-};
-
-export const getPostCommentsFromDatabase: RequestHandler = async (
-  req,
-  res,
-  next
-) => {
-  const blogId = castObjectId(req.params.blogid);
-
-  if (!blogId) {
-    return next();
-  }
-
-  debug(`Retrieving comments for post ${blogId}`);
-
-  const comments = await Comment.find({ post: blogId })
-    .populate("author", "-password")
-    .sort({ createdAt: -1 })
-    .exec()
-    .catch(next);
-
-  if (comments) {
-    res.json(comments);
-  } else {
-    res
-      .status(400)
-      .json(
-        getNotFoundErrorResponse(`Comments for blog id: ${req.params.blogid}`)
-      );
-  }
 };
 
 const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
@@ -111,33 +84,71 @@ const deleteBlogInDatabase: RequestHandler = async (req, res, next) => {
         .json(getNotFoundErrorResponse(`Blog id: ${req.params.blogid}`));
 };
 
-const postCommentToDatabase: RequestHandler = async (req, res, next) => {
+// * blog resources (ie, comments)
+
+const getBlogCommentsFromDBHandler: RequestHandler = async (req, res, next) => {
+  // TODO: maybe confirm blog actually exists?
+
+  try {
+    debug(`Retrieving comments for post ${req.params.blogid}`);
+    const comments = await commentQueries.getCommentsByBlogId(
+      req.params.blogid
+    );
+
+    if (comments) {
+      res.json(comments);
+    } else {
+      res
+        .status(400)
+        .json(
+          getNotFoundErrorResponse(`Comments for blog id: ${req.params.blogid}`)
+        );
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+// TODO: simplify?
+const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
   const blogId = castObjectId(req.params.blogid);
+  const userId = castObjectId(req.user?._id ?? "");
 
   if (!blogId) {
-    return next();
+    return res
+      .status(400)
+      .json(getSimpleErrorResponse(`Invalid blog id ${req.params.blogid}`));
+  }
+
+  if (!userId) {
+    return res
+      .status(401)
+      .json(getSimpleErrorResponse("Invalid user credentials."));
   }
 
   try {
     const post = await Post.findById(blogId).exec();
 
-    if (post) {
-      debug(`Posting comment on blogpost ${blogId}`);
-
-      const { content } = req.body;
-      const postId = post._id;
-      const author = req.user?._id;
-      const comment = await new Comment({
-        content,
-        author,
-        post: postId,
-      }).save();
-      res.json(comment);
-    } else {
+    if (!post) {
       res.status(400).json(getNotFoundErrorResponse(req.params.blogid));
+      return;
     }
-  } catch (e) {
-    return next(e);
+
+    debug(`Posting comment on blogpost ${blogId}`);
+
+    const comment = await commentQueries.postCommentToDB({
+      content: req.body.content,
+      author: userId,
+      post: post._id,
+    });
+
+    if (!comment) {
+      res.status(500).json(getSimpleErrorResponse("Could not post comment."));
+    }
+
+    res.json(comment);
+  } catch (err) {
+    return next(err);
   }
 };
 
@@ -161,5 +172,7 @@ export const postComment: RequestHandler[] = [
   verifyToken,
   // TODO: authorization
   ...commentValidators,
-  postCommentToDatabase,
+  postCommentToDBHandler,
 ];
+
+export const getBlogComments: RequestHandler[] = [getBlogCommentsFromDBHandler];

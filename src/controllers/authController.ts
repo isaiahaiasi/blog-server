@@ -10,7 +10,7 @@ import {
 import { validatorHandler } from "../middleware/validatorHandler";
 import { hashPassword } from "../middleware/authentication";
 import userQueries from "../db-queries/userQueries";
-import { getErrorResponse } from "../middleware/errorHandler";
+import { getSimpleErrorResponse } from "../middleware/errorHandler";
 
 const loginUser: RequestHandler = (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
@@ -53,7 +53,7 @@ const registerUser: RequestHandler = async (req, res, next) => {
     } else {
       res
         .status(400)
-        .json(getErrorResponse("Could not create new user record"));
+        .json(getSimpleErrorResponse("Could not create new user record"));
     }
   } catch (err) {
     next(err);

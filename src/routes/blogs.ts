@@ -3,7 +3,7 @@ import {
   deleteBlog,
   getBlogById,
   getBlogs,
-  getPostCommentsFromDatabase,
+  getBlogComments,
   postComment,
   updateBlog,
 } from "../controllers/blogController";
@@ -27,7 +27,7 @@ blogRouter.delete("/:blogid", deleteBlog);
 
 // COMMENTS
 // (currently no plan to enable updating a comment or get a specific comment)
-blogRouter.get("/:blogid/comments", getPostCommentsFromDatabase);
+blogRouter.get("/:blogid/comments", getBlogComments);
 
 blogRouter.post("/:blogid/comments", postComment);
 
