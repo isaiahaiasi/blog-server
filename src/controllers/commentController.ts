@@ -23,7 +23,6 @@ const deleteCommentFromDatabase: RequestHandler = async (req, res, next) => {
 
 export const deleteComment = [
   verifyToken,
-  verifySameUser,
-  ...commentValidators,
+  // verifySameUser,
   deleteCommentFromDatabase,
 ];

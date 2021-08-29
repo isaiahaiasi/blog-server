@@ -17,8 +17,7 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
   debug("error handler: %O", errorResponse);
 
-  res.status(err?.status ?? 500);
-  res.json(errorResponse);
+  res.status(err?.status ?? 500).json(errorResponse);
 };
 
 export const getNotFoundErrorResponse = (name: string) => ({

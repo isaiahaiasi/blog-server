@@ -4,7 +4,10 @@ import { getNotFoundErrorResponse } from "../middleware/errorHandler";
 import Comment from "../models/Comment";
 import Post, { IPost } from "../models/Post";
 import { castObjectId } from "../utils/mongooseHelpers";
-import { postValidators } from "../middleware/postValidators";
+import {
+  commentValidators,
+  postValidators,
+} from "../middleware/postValidators";
 import createDebug from "debug";
 
 const debug = createDebug("app:endpoints");
@@ -47,8 +50,11 @@ export const getPostCommentsFromDatabase: RequestHandler = async (
     return next();
   }
 
+  debug(`Retrieving comments for post ${blogId}`);
+
   const comments = await Comment.find({ post: blogId })
     .populate("author", "-password")
+    .sort({ createdAt: -1 })
     .exec()
     .catch(next);
 
@@ -112,18 +118,26 @@ const postCommentToDatabase: RequestHandler = async (req, res, next) => {
     return next();
   }
 
-  const post = await Post.findById(blogId).exec().catch(next);
+  try {
+    const post = await Post.findById(blogId).exec();
 
-  if (post) {
-    const { content } = req.body;
-    const postId = post._id;
-    const author = req.user?._id;
-    const comment = await new Comment({ content, author, post: postId })
-      .save()
-      .catch(next);
-    res.json(comment);
-  } else {
-    res.status(400).json(getNotFoundErrorResponse(req.params.blogid));
+    if (post) {
+      debug(`Posting comment on blogpost ${blogId}`);
+
+      const { content } = req.body;
+      const postId = post._id;
+      const author = req.user?._id;
+      const comment = await new Comment({
+        content,
+        author,
+        post: postId,
+      }).save();
+      res.json(comment);
+    } else {
+      res.status(400).json(getNotFoundErrorResponse(req.params.blogid));
+    }
+  } catch (e) {
+    return next(e);
   }
 };
 
@@ -146,6 +160,6 @@ export const deleteBlog: RequestHandler[] = [
 export const postComment: RequestHandler[] = [
   verifyToken,
   // TODO: authorization
-  ...postValidators,
+  ...commentValidators,
   postCommentToDatabase,
 ];

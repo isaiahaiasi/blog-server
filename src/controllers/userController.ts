@@ -86,15 +86,14 @@ export const getUserPostsFromDatabase: RequestHandler = async (
   res,
   next
 ) => {
+  // find posts with matching author, with publish dates NOT in the future
+  // sort by descending publishDate
   const author = castObjectId(req.params.userid);
 
   if (!author) {
     return next();
   }
 
-  // find posts with matching author, with publish dates NOT in the future
-  // sort by descending publishDate
-  // TODO: different endpoints: (authorized) "all posts" vs. unauth'd "published posts"
   const currentDate = new Date();
   const posts = await Post.find({ author, publishDate: { $lte: currentDate } })
     .sort({ publishDate: -1 })
@@ -171,11 +170,7 @@ export const deleteUser: RequestHandler[] = [
 ];
 
 // user resources
-export const getUserPosts: RequestHandler[] = [
-  verifyToken,
-  verifySameUser,
-  getUserPostsFromDatabase,
-];
+export const getUserPosts: RequestHandler[] = [getUserPostsFromDatabase];
 
 export const postUserPost: RequestHandler[] = [
   verifyToken,
