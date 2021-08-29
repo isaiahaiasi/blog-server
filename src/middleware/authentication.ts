@@ -5,8 +5,9 @@ import bcrypt from "bcryptjs";
 import createDebug from "debug";
 const debug = createDebug("app:auth");
 
-// ! Don't know where this should actually go...
+// TODO: Don't know where this should actually go...
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface User {
       username: string;

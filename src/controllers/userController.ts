@@ -70,14 +70,18 @@ const putUserInDBHandler: RequestHandler = async (req, res, next) => {
 };
 
 const deleteUserFromDatabase: RequestHandler = async (req, res, next) => {
-  const user = await userQueries.deleteUserFromDB(req.params.userid);
+  try {
+    const user = await userQueries.deleteUserFromDB(req.params.userid);
 
-  if (user) {
-    return res.json(user);
-  } else {
-    return res
-      .status(400)
-      .json(getNotFoundErrorResponse(`User ${req.params.id}`));
+    if (user) {
+      return res.json(user);
+    } else {
+      return res
+        .status(400)
+        .json(getNotFoundErrorResponse(`User ${req.params.id}`));
+    }
+  } catch (err) {
+    next(err);
   }
 };
 

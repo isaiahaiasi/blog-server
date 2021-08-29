@@ -7,7 +7,7 @@ import userQueries from "../db-queries/userQueries";
 
 const debug = createDebug("app:auth");
 
-const getLocal = () => {
+const getLocal = (): LocalStrategy => {
   return new LocalStrategy(async (username, password, done) => {
     // get user
     try {
@@ -35,7 +35,7 @@ const getLocal = () => {
 
 // TODO: add expiry
 // TODO: refresh tokens
-const getJwt = () => {
+const getJwt = (): JwtStrategy => {
   return new JwtStrategy(
     {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

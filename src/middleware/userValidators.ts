@@ -1,7 +1,4 @@
-// Both user & auth controllers share these validators
 import { body } from "express-validator";
-import User from "../models/User";
-
 import createDebug from "debug";
 import { validatorHandler } from "./validatorHandler";
 import userQueries from "../db-queries/userQueries";
