@@ -1,5 +1,4 @@
 import { RequestHandler } from "express";
-import Post from "../models/Post";
 import { IUser } from "../models/User";
 import {
   verifyToken,
@@ -13,10 +12,13 @@ import {
   passwordValidator,
 } from "../middleware/userValidators";
 import { ifPresent, validatorHandler } from "../middleware/validatorHandler";
-import { castObjectId } from "../utils/mongooseHelpers";
 import { postValidators } from "../middleware/postValidators";
 import userQueries from "../db-queries/userQueries";
-import { getNotFoundErrorResponse } from "../middleware/errorHandler";
+import {
+  getNotFoundErrorResponse,
+  getSimpleErrorResponse,
+} from "../middleware/errorHandler";
+import blogQueries from "../db-queries/blogQueries";
 
 const getUserFromDBHandler: RequestHandler = async (req, res, next) => {
   const { userid } = req.params;
@@ -85,22 +87,17 @@ export const getUserPostsFromDatabase: RequestHandler = async (
   res,
   next
 ) => {
-  // find posts with matching author, with publish dates NOT in the future
-  // sort by descending publishDate
-  const author = castObjectId(req.params.userid);
+  try {
+    const posts = await blogQueries.getPublishedUserBlogsFromDB(
+      req.params.userid
+    );
 
-  if (!author) {
-    return next();
+    return posts && Array.isArray(posts) && posts.length > 0
+      ? res.json(posts)
+      : res.json(getSimpleErrorResponse("No user posts"));
+  } catch (err) {
+    next(err);
   }
-
-  const currentDate = new Date();
-  const posts = await Post.find({ author, publishDate: { $lte: currentDate } })
-    .sort({ publishDate: -1 })
-    .populate("author", "-password")
-    .exec()
-    .catch(next);
-
-  posts ? res.json(posts) : res.json({ errors: [{ msg: "No user posts" }] });
 };
 
 export const postUserPostToDatabase: RequestHandler = async (
@@ -108,25 +105,24 @@ export const postUserPostToDatabase: RequestHandler = async (
   res,
   next
 ) => {
-  const { title, content, publishDate } = req.body;
+  try {
+    const { title, content, publishDate } = req.body;
 
-  // should already be verified by preceding middleware
-  const author = castObjectId(req.params.userid);
+    const post = blogQueries.addBlogToDB({
+      title,
+      content,
+      publishDate,
+      author: req.params.userid,
+    });
 
-  if (!author) {
-    return next();
+    return post
+      ? res.json(post)
+      : res
+          .status(500)
+          .json(getSimpleErrorResponse("Could not add blog post to database."));
+  } catch (err) {
+    next(err);
   }
-
-  const post = await new Post({
-    title,
-    content,
-    author,
-    publishDate,
-  })
-    .save()
-    .catch(next);
-
-  res.json(post);
 };
 
 // * Controller Arrays

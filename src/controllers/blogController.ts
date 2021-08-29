@@ -4,7 +4,7 @@ import {
   getSimpleErrorResponse,
   getNotFoundErrorResponse,
 } from "../middleware/errorHandler";
-import Post, { IPost } from "../models/Post";
+import { IPost } from "../models/Post";
 import { castObjectId } from "../utils/mongooseHelpers";
 import {
   commentValidators,
@@ -12,43 +12,42 @@ import {
 } from "../middleware/postValidators";
 import createDebug from "debug";
 import commentQueries from "../db-queries/commentQueries";
+import blogQueries from "../db-queries/blogQueries";
 
 const debug = createDebug("app:endpoints");
 
 export const getBlogs: RequestHandler = async (req, res, next) => {
   debug("getting blogs...");
-  const posts = await Post.find({})
-    .sort({ publishDate: -1 })
-    .populate("author", "-password")
-    .exec()
-    .catch(next);
-  res.json(posts);
+
+  try {
+    const posts = blogQueries.getAllBlogsFromDB();
+    res.json(posts);
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const getBlogById: RequestHandler = async (req, res, next) => {
+const getBlogByIdHandler: RequestHandler = async (req, res, next) => {
   debug(`Getting blog ${req.params.blogid}`);
 
-  const blogId = castObjectId(req.params.blogid);
+  try {
+    const post = await blogQueries.getBlogFromDBById(req.params.blogid);
 
-  if (!blogId) {
-    return next();
+    if (post) {
+      res.json(post);
+      return;
+    } else {
+      res
+        .status(400)
+        .json(getNotFoundErrorResponse(`Blog post id#${req.params.id}`));
+      return;
+    }
+  } catch (err) {
+    next(err);
   }
-
-  const post = await Post.findById(blogId)
-    .populate("author", "-password")
-    .exec()
-    .catch(next);
-
-  res.json(post);
 };
 
 const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
-  const blogId = castObjectId(req.params.blogid);
-
-  if (!blogId) {
-    return next();
-  }
-
   // Hacky way to only add property if not null/undefined
   const { title, content, publishDate } = req.body;
   const postUpdate: Partial<IPost> = {
@@ -57,39 +56,40 @@ const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
     ...(publishDate != null && { publishDate }),
   };
 
-  const updatedPost = await Post.findByIdAndUpdate(blogId, postUpdate).catch(
-    next
-  );
-
-  return updatedPost
-    ? res.json(updatedPost)
-    : res
+  try {
+    const post = await blogQueries.updateBlogInDB(req.params.id, postUpdate);
+    if (post) {
+      res.json(post);
+      return;
+    } else {
+      res
         .status(400)
         .json(getNotFoundErrorResponse(`Blog id: ${req.params.blogid}`));
+    }
+  } catch (err) {
+    next(err);
+  }
 };
 
 const deleteBlogInDatabase: RequestHandler = async (req, res, next) => {
-  const blogId = castObjectId(req.params.blogid);
+  try {
+    const deletedPost = await blogQueries.deleteBlogFromDB(req.params.id);
 
-  if (!blogId) {
-    return next();
+    return deletedPost
+      ? res.json(deletedPost)
+      : res
+          .status(400)
+          .json(getNotFoundErrorResponse(`Blog id: ${req.params.blogid}`));
+  } catch (err) {
+    next(err);
   }
-
-  const deletedPost = await Post.findByIdAndDelete(blogId).catch(next);
-
-  return deletedPost
-    ? res.json(deletedPost)
-    : res
-        .status(400)
-        .json(getNotFoundErrorResponse(`Blog id: ${req.params.blogid}`));
 };
 
 // * blog resources (ie, comments)
 
 const getBlogCommentsFromDBHandler: RequestHandler = async (req, res, next) => {
-  // TODO: maybe confirm blog actually exists?
-
   try {
+    // TODO: maybe confirm blog actually exists?
     debug(`Retrieving comments for post ${req.params.blogid}`);
     const comments = await commentQueries.getCommentsByBlogId(
       req.params.blogid
@@ -127,7 +127,7 @@ const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const post = await Post.findById(blogId).exec();
+    const post = await blogQueries.getBlogFromDBById(req.params.id);
 
     if (!post) {
       res.status(400).json(getNotFoundErrorResponse(req.params.blogid));
@@ -139,7 +139,7 @@ const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
     const comment = await commentQueries.postCommentToDB({
       content: req.body.content,
       author: userId,
-      post: post._id,
+      post: blogId,
     });
 
     if (!comment) {
@@ -153,6 +153,8 @@ const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
 };
 
 //* Controller arrays
+
+export const getBlogById: RequestHandler[] = [getBlogByIdHandler];
 
 export const updateBlog: RequestHandler[] = [
   verifyToken,
