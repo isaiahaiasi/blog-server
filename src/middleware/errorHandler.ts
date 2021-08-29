@@ -4,7 +4,6 @@ import createDebug from "debug";
 const debug = createDebug("app:endpoints");
 
 // Express-Generator error handlers
-
 export const catch404: RequestHandler = (req, res, next) => {
   next(createHttpError(404));
 };
@@ -20,6 +19,25 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.status(err?.status ?? 500).json(errorResponse);
 };
 
-export const getNotFoundErrorResponse = (name: string) => ({
+// Custom error response generators
+interface SimpleErrorResponse {
+  msg: string;
+}
+
+interface ErrorResponse {
+  errors: SimpleErrorResponse[];
+}
+
+interface ErrorResponseGenerator {
+  (input: any): ErrorResponse;
+}
+
+export const getErrorResponse: ErrorResponseGenerator = (msg) => ({
+  errors: [{ msg: msg }],
+});
+
+export const getNotFoundErrorResponse: ErrorResponseGenerator = (
+  name: string
+) => ({
   errors: [{ msg: `${name} not found` }],
 });
