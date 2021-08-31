@@ -20,7 +20,7 @@ export const getBlogs: RequestHandler = async (req, res, next) => {
   debug("getting blogs...");
 
   try {
-    const posts = blogQueries.getAllBlogsFromDB();
+    const posts = await blogQueries.getAllBlogsFromDB();
     res.json(posts);
   } catch (err) {
     next(err);
