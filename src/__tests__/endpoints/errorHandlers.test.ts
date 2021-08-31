@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const validRoute = "/route-that-returns-valid-response";
 const errorRoute = "/route-that-always-throws";
-const errorBody = { status: 450, message: "uh oh!" };
+const errorBody = { status: 418, message: "I'm a teapot!" };
 
 app.use(validRoute, (req, res) => {
   res.json({ msg: "received" });
@@ -40,7 +40,7 @@ describe("Error handling", () => {
     const response = await request(app)
       .get(errorRoute)
       .expect("Content-Type", /json/)
-      .expect(450);
+      .expect(418);
     expect(response.body).toStrictEqual({
       errors: [{ msg: errorBody.message }],
     });
