@@ -1,7 +1,6 @@
 // config imports
-import { PORT, MONGODB_URI } from "./utils/secrets";
+import { PORT } from "./utils/secrets";
 import express from "express";
-import mongoose from "mongoose";
 
 // middleware imports
 import cors from "cors";
@@ -14,15 +13,12 @@ import authRouter from "./routes/auth";
 import userRouter from "./routes/users";
 import blogRouter from "./routes/blogs";
 import commentRouter from "./routes/comments";
+import initializeMongoose from "./mongoConfig";
 
 const app = express();
 
-// Set up Mongoose (TODO?: Extract)
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-});
+// initialize mongoose for MongoDB connection
+initializeMongoose();
 
 // Global Middleware
 
