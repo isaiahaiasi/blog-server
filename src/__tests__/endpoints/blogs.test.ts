@@ -3,7 +3,7 @@ import express from "express";
 
 import { catch404, errorHandler } from "../../middleware/errorHandler";
 import blogRouter from "../../routes/blogs";
-import initializeMongooseTesting from "../../__test-config__/mongoConfigTesting";
+import initializeMongooseTesting from "../__fixtures__/mongoConfigTesting";
 
 // * Set up mongodb-memory-server
 // Unfortunately, can't await it in current set up,
@@ -25,7 +25,9 @@ app.use(errorHandler);
 
 // * Set up and teardown for testing
 
-// TODO: populate db in beforeAll
+beforeAll(async () => {
+  // TODO: populate db
+});
 
 afterAll(async () => {
   const cleanupFn = await cleanupFnPromise;

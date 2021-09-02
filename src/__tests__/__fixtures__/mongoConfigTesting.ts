@@ -28,13 +28,12 @@ const initializeMongooseTesting = async (): Promise<{
 
   mongoose.connect(mongoUri, mongooseOptions);
 
-  const db = mongoose.connection;
-  db.on("error", (e) => {
-    if (e.message.code === "ETIMEDOUT") {
-      console.log(e);
+  mongoose.connection.on("error", (err) => {
+    if (err.message.code === "ETIMEDOUT") {
+      console.log(err);
       mongoose.connect(mongoUri, mongooseOptions);
     }
-    console.log(e);
+    console.log(err);
   });
 
   mongoose.connection.once("open", () => {
