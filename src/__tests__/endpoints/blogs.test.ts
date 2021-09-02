@@ -1,27 +1,16 @@
 import request from "supertest";
-import express from "express";
 
-import { catch404, errorHandler } from "../../middleware/errorHandler";
 import blogRouter from "../../routes/blogs";
 import initializeMongooseTesting from "../__fixtures__/mongoConfigTesting";
+import initializeApp from "../__fixtures__/appConfigTesting";
 
-// * Set up mongodb-memory-server
-// Unfortunately, can't await it in current set up,
-// so this holds the Promise that resolves to the kill fn.
 const cleanupFnPromise = initializeMongooseTesting();
 
 // TODO: connect auth to test authenticated routes
 
-// * Set up app
-const app = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use("/blogs", blogRouter);
-
-app.use(catch404);
-app.use(errorHandler);
+const app = initializeApp((app) => {
+  app.use("/blogs", blogRouter);
+});
 
 // * Set up and teardown for testing
 
