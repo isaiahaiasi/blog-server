@@ -1,8 +1,8 @@
 import request from "supertest";
-
 import blogRouter from "../../routes/blogs";
 import initializeMongooseTesting from "../__fixtures__/mongoConfigTesting";
 import initializeApp from "../__fixtures__/appConfigTesting";
+import seedDatabase from "../__fixtures__/dbTestSeeding";
 
 const cleanupFnPromise = initializeMongooseTesting();
 
@@ -15,7 +15,7 @@ const app = initializeApp((app) => {
 // * Set up and teardown for testing
 
 beforeAll(async () => {
-  // TODO: populate db
+  await seedDatabase();
 });
 
 afterAll(async () => {
@@ -31,5 +31,6 @@ describe("GET /blogs", () => {
       .get("/blogs")
       .expect("Content-Type", /json/);
     expect(response.statusCode).toBe(200);
+    console.log(response.body);
   });
 });
