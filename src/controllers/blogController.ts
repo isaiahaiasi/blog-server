@@ -11,8 +11,8 @@ import {
   postValidators,
 } from "../middleware/postValidators";
 import createDebug from "debug";
-import commentQueries from "../db-queries/commentQueries";
-import blogQueries from "../db-queries/blogQueries";
+import commentQueries from "../queries/commentQueries";
+import blogQueries from "../queries/blogQueries";
 
 const debug = createDebug("app:endpoints");
 

@@ -27,7 +27,7 @@ const mongoQueries: BlogQueries = {
     const blogId = castObjectId(id);
 
     if (!blogId) {
-      return blogId;
+      return null;
     }
 
     return Post.findById(blogId).populate("author", "-password").exec();

@@ -13,12 +13,12 @@ import {
 } from "../middleware/userValidators";
 import { ifPresent, validatorHandler } from "../middleware/validatorHandler";
 import { postValidators } from "../middleware/postValidators";
-import userQueries from "../db-queries/userQueries";
+import userQueries from "../queries/userQueries";
 import {
   getNotFoundErrorResponse,
   getSimpleErrorResponse,
 } from "../middleware/errorHandler";
-import blogQueries from "../db-queries/blogQueries";
+import blogQueries from "../queries/blogQueries";
 
 const getUserFromDBHandler: RequestHandler = async (req, res, next) => {
   const { userid } = req.params;

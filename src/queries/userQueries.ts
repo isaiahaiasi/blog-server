@@ -24,7 +24,7 @@ const mongoQueries: UserQueries = {
     const userId = castObjectId(id);
 
     if (!userId) {
-      return userId;
+      return null;
     }
 
     return User.findById(userId, "username").exec();

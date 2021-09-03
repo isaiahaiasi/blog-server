@@ -27,7 +27,7 @@ const mongoQueries: CommentQueries = {
     const commentId = castObjectId(id);
 
     if (!commentId) {
-      return commentId;
+      return null;
     }
 
     return await Comment.findByIdAndDelete(commentId);

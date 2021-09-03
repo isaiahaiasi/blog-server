@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { verifySameUser, verifyToken } from "../middleware/authentication";
 import { getNotFoundErrorResponse } from "../middleware/errorHandler";
-import commentQueries from "../db-queries/commentQueries";
+import commentQueries from "../queries/commentQueries";
 
 const deleteCommentFromDBHandler: RequestHandler = async (req, res, next) => {
   try {

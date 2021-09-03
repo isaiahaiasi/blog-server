@@ -3,7 +3,7 @@ import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import { compare } from "bcryptjs";
 import { JWT_SECRET } from "../utils/secrets";
 import createDebug from "debug";
-import userQueries from "../db-queries/userQueries";
+import userQueries from "../queries/userQueries";
 
 const debug = createDebug("app:auth");
 
