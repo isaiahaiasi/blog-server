@@ -1,6 +1,6 @@
 // Basic setup that all route tests will need
 
-import express from "express";
+import express, { Application } from "express";
 import { catch404, errorHandler } from "../../middleware/errorHandler";
 
 type initCallback = { (app: express.Application): void };
@@ -15,7 +15,7 @@ type initCallback = { (app: express.Application): void };
  * @param cb - After initialization, this callback is called so additional middleware can be added before final error-handling middleware
  * @returns the app object so requests can be called with it
  */
-export default function initializeApp(cb: initCallback): express.Application {
+export default function initializeApp(cb: initCallback): Application {
   const app = express();
 
   app.use(express.json());
