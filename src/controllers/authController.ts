@@ -9,8 +9,9 @@ import {
 } from "../middleware/userValidators";
 import { validatorHandler } from "../middleware/validatorHandler";
 import { hashPassword } from "../middleware/authentication";
-import userQueries from "../db-queries/userQueries";
+import userQueries from "../queries/userQueries";
 import { getSimpleErrorResponse } from "../middleware/errorHandler";
+import { LoginResponse, RegistrationResponse } from "../utils/response-types";
 
 const loginUser: RequestHandler = (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
@@ -30,10 +31,9 @@ const loginUser: RequestHandler = (req, res, next) => {
       // ? I do not remember why I'm parse-stringifying this...
       const token = jwt.sign(JSON.parse(JSON.stringify(user)), JWT_SECRET);
 
-      return res.json({
-        user,
-        token,
-      });
+      const responseContent: LoginResponse = { user, token };
+
+      return res.json(responseContent);
     });
   })(req, res, next);
 };
@@ -49,7 +49,12 @@ const registerUser: RequestHandler = async (req, res, next) => {
     const user = await userQueries.addUserToDB({ username, password: pwHash });
 
     if (user) {
-      res.json({ msg: "Registration successful!", user });
+      const responseContent: RegistrationResponse = {
+        user,
+        msg: "Registration successful!",
+      };
+
+      res.json(responseContent);
     } else {
       res
         .status(400)
