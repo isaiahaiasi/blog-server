@@ -11,7 +11,7 @@ const validatePostContent = body("content")
   .isLength({ max: 5000 })
   .withMessage("Post content must not be longer than 5000 characters.");
 
-const validatePublishDate = body("publishDate").trim().isDate();
+const validatePublishDate = body("publishDate").trim().isISO8601();
 
 const validateCommentContent = body("content")
   .isLength({ min: 2, max: 1000 })

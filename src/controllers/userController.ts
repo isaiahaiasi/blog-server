@@ -112,7 +112,7 @@ export const postUserPostToDatabase: RequestHandler = async (
   try {
     const { title, content, publishDate } = req.body;
 
-    const post = blogQueries.addBlogToDB({
+    const post = await blogQueries.addBlogToDB({
       title,
       content,
       publishDate,
