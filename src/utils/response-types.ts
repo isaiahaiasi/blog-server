@@ -1,7 +1,7 @@
 import { IUser } from "../models/User";
 
 export interface LoginResponse {
-  user: IUser;
+  user: Partial<IUser>;
   token: string;
 }
 

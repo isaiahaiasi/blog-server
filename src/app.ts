@@ -6,7 +6,10 @@ import express from "express";
 import cors from "cors";
 import { catch404, errorHandler } from "./middleware/errorHandler";
 import passport from "passport";
-import { getJwtStrategy, getLocalStrategy } from "./config/passportConfig";
+import {
+  getAccessTokenStrategy,
+  getLocalStrategy,
+} from "./config/passportConfig";
 
 // router imports
 import authRouter from "./routes/auth";
@@ -14,6 +17,7 @@ import userRouter from "./routes/users";
 import blogRouter from "./routes/blogs";
 import commentRouter from "./routes/comments";
 import initializeMongoose from "./mongoConfig";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
@@ -25,10 +29,11 @@ initializeMongoose();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // auth middleware
 passport.use(getLocalStrategy());
-passport.use(getJwtStrategy());
+passport.use(getAccessTokenStrategy());
 app.use(passport.initialize());
 // ROUTES
 

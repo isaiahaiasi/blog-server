@@ -9,8 +9,8 @@ import { validatorHandler } from "../middleware/validatorHandler";
 import { hashPassword } from "../middleware/authentication";
 import userQueries from "../queries/userQueries";
 import { getSimpleErrorResponse } from "../middleware/errorHandler";
-import { LoginResponse, RegistrationResponse } from "../utils/response-types";
-import { getToken } from "../config/passportConfig";
+import { RegistrationResponse } from "../utils/response-types";
+import { generateUserSecret, getSignedToken } from "../config/passportConfig";
 
 const loginUser: RequestHandler = (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
@@ -22,14 +22,19 @@ const loginUser: RequestHandler = (req, res, next) => {
       return res.status(400).json(info);
     }
 
-    req.login(user, { session: false }, (err) => {
+    req.login(user, { session: false }, async (err) => {
       if (err) {
         res.send(err);
+        return;
       }
 
-      const token = getToken(JSON.parse(JSON.stringify(user)), "todo");
+      const { _id } = user;
+      const userDataToSend = { _id };
 
-      const responseContent: LoginResponse = { user, token };
+      const token = await getSignedToken(userDataToSend, _id);
+
+      // TODO: implement LoginResponse interface, once I actually decide what it should be
+      const responseContent = { user: userDataToSend, token };
 
       return res.json(responseContent);
     });
@@ -44,7 +49,11 @@ const registerUser: RequestHandler = async (req, res, next) => {
     const pwHash = await hashPassword(password);
 
     // create user with the pwHash as the pw
-    const user = await userQueries.addUserToDB({ username, password: pwHash });
+    const user = await userQueries.addUserToDB({
+      username,
+      password: pwHash,
+      tkey: generateUserSecret(),
+    });
 
     if (user) {
       const responseContent: RegistrationResponse = {
