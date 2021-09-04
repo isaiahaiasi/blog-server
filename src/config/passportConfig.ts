@@ -1,5 +1,9 @@
 import { Strategy as LocalStrategy } from "passport-local";
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import {
+  Strategy as JwtStrategy,
+  ExtractJwt,
+  SecretOrKeyProvider,
+} from "passport-jwt";
 import jwt from "jsonwebtoken";
 import { compare } from "bcryptjs";
 import { JWT_SECRET } from "../utils/secrets";
@@ -34,9 +38,28 @@ const getLocalStrategy = (): LocalStrategy => {
   });
 };
 
-// ? I do not remember why I'm parse-stringifying this...
-const getToken = (content: Record<string, unknown>, secret?: string): string =>
-  jwt.sign(content, JWT_SECRET + (secret ?? ""));
+// append user-specific secret to app secret
+const getSecret = (userSecret: string) => JWT_SECRET + userSecret;
+
+const generateSecret: SecretOrKeyProvider = async (req, rawJwtToken, done) => {
+  // TODO: implement express cookie parser
+  // const userid = req.cookies.userid;
+  const userid = "hello";
+
+  if (!userid) {
+    return done({ message: "No userid cookie found." });
+  }
+
+  const userSecret = "todo"; // get user secret from db
+  if (userSecret) {
+    return done(null, getSecret(userSecret));
+  } else {
+    return done({ message: "Could not generate token for user." });
+  }
+};
+
+const getToken = (content: Record<string, unknown>, secret: string): string =>
+  jwt.sign(content, getSecret(secret));
 
 // TODO: add USER secret
 // TODO: add expiry
@@ -45,7 +68,7 @@ const getJwtStrategy = (): JwtStrategy => {
   return new JwtStrategy(
     {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: JWT_SECRET,
+      secretOrKeyProvider: generateSecret,
     },
     async (jwtPayload, done) => {
       // TODO: ? omit the call to the db, since the user info IS the jwtPayload?

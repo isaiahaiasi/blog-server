@@ -27,7 +27,7 @@ const loginUser: RequestHandler = (req, res, next) => {
         res.send(err);
       }
 
-      const token = getToken(JSON.parse(JSON.stringify(user)));
+      const token = getToken(JSON.parse(JSON.stringify(user)), "todo");
 
       const responseContent: LoginResponse = { user, token };
 
