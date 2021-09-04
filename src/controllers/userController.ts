@@ -119,6 +119,8 @@ export const postUserPostToDatabase: RequestHandler = async (
       author: req.params.userid,
     });
 
+    console.log("post", post);
+
     return post
       ? res.json(post)
       : res

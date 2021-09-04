@@ -1,5 +1,6 @@
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import jwt from "jsonwebtoken";
 import { compare } from "bcryptjs";
 import { JWT_SECRET } from "../utils/secrets";
 import createDebug from "debug";
@@ -7,7 +8,7 @@ import userQueries from "../queries/userQueries";
 
 const debug = createDebug("app:auth");
 
-const getLocal = (): LocalStrategy => {
+const getLocalStrategy = (): LocalStrategy => {
   return new LocalStrategy(async (username, password, done) => {
     // get user
     try {
@@ -33,9 +34,14 @@ const getLocal = (): LocalStrategy => {
   });
 };
 
+// ? I do not remember why I'm parse-stringifying this...
+const getToken = (content: Record<string, unknown>, secret?: string): string =>
+  jwt.sign(content, JWT_SECRET + (secret ?? ""));
+
+// TODO: add USER secret
 // TODO: add expiry
 // TODO: refresh tokens
-const getJwt = (): JwtStrategy => {
+const getJwtStrategy = (): JwtStrategy => {
   return new JwtStrategy(
     {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -58,4 +64,4 @@ const getJwt = (): JwtStrategy => {
   );
 };
 
-export { getLocal, getJwt };
+export { getLocalStrategy, getJwtStrategy, getToken };

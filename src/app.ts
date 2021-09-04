@@ -6,7 +6,7 @@ import express from "express";
 import cors from "cors";
 import { catch404, errorHandler } from "./middleware/errorHandler";
 import passport from "passport";
-import { getJwt, getLocal } from "./config/passportConfig";
+import { getJwtStrategy, getLocalStrategy } from "./config/passportConfig";
 
 // router imports
 import authRouter from "./routes/auth";
@@ -27,8 +27,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // auth middleware
-passport.use(getLocal());
-passport.use(getJwt());
+passport.use(getLocalStrategy());
+passport.use(getJwtStrategy());
 app.use(passport.initialize());
 // ROUTES
 

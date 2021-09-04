@@ -1,7 +1,5 @@
 import { RequestHandler } from "express";
 import passport from "passport";
-import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../utils/secrets";
 import {
   validatePasswordsMatch,
   validatePassword,
@@ -12,6 +10,7 @@ import { hashPassword } from "../middleware/authentication";
 import userQueries from "../queries/userQueries";
 import { getSimpleErrorResponse } from "../middleware/errorHandler";
 import { LoginResponse, RegistrationResponse } from "../utils/response-types";
+import { getToken } from "../config/passportConfig";
 
 const loginUser: RequestHandler = (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
@@ -28,8 +27,7 @@ const loginUser: RequestHandler = (req, res, next) => {
         res.send(err);
       }
 
-      // ? I do not remember why I'm parse-stringifying this...
-      const token = jwt.sign(JSON.parse(JSON.stringify(user)), JWT_SECRET);
+      const token = getToken(JSON.parse(JSON.stringify(user)));
 
       const responseContent: LoginResponse = { user, token };
 
