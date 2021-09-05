@@ -6,21 +6,17 @@ import {
 } from "passport-jwt";
 import jwt from "jsonwebtoken";
 import { compare } from "bcryptjs";
-import jwt_decode from "jwt-decode";
 import { JWT_SECRET } from "../utils/secrets";
 import createDebug from "debug";
 import userQueries from "../queries/userQueries";
-import { IUser } from "../models/User";
+import { Response } from "express";
 
 const debug = createDebug("app:auth");
 
 const ACCESS_TOKEN_LIFE = 5 * 60 * 1000; // 5 minutes
 
-type AccessToken = Partial<IUser> & {
-  _id?: string;
-  // TODO: expiry
-  // TODO: createdAt?
-};
+// TODO: generate a token id/user secret (prob just use nanoid)
+const generateUserSecret = (): string => "todo";
 
 // get user-specific secret from db & append to server secret
 const getSecret = async (userId: string) => {
@@ -28,16 +24,20 @@ const getSecret = async (userId: string) => {
   return JWT_SECRET + userSecret;
 };
 
-// TODO: generate a token id/user secret (prob just use nanoid)
-const generateUserSecret = (): string => "todo";
+const setAuthCookies = (res: Response, jwt_a: string, _id: string): void => {
+  res.cookie("jwt_a", jwt_a, {
+    httpOnly: true,
+    expires: new Date(ACCESS_TOKEN_LIFE + Date.now()),
+  });
+  res.cookie("uid", _id, { httpOnly: true });
+};
 
 const secretOrKeyProvider: SecretOrKeyProvider = async (
   req,
   rawJwtToken,
   done
 ) => {
-  const decodedJwt = jwt_decode(rawJwtToken) as AccessToken;
-  const userId = decodedJwt._id;
+  const userId = req.cookies.uid;
 
   if (!userId) {
     return done({ message: "No userid cookie found." });
@@ -45,11 +45,9 @@ const secretOrKeyProvider: SecretOrKeyProvider = async (
 
   const secret = await getSecret(userId);
 
-  if (secret) {
-    return done(null, secret);
-  } else {
-    return done({ message: "Could not generate token for user." });
-  }
+  return secret
+    ? done(null, secret)
+    : done({ message: "Could not get token for user." });
 };
 
 const getSignedToken = async (
@@ -86,8 +84,8 @@ const getAccessTokenStrategy = (): JwtStrategy => {
 
 // TODO: instead of just grabbing user from db, set a new `tkey`
 // Each new authentication should invalidate existing tokens
-// TODO: this isn't great from a usability perspective with multiple clients...
 // Putting these into one trip is more efficient
+// NOTE: this isn't great from a usability perspective with multiple clients...
 const getLocalStrategy = (): LocalStrategy => {
   return new LocalStrategy(async (username, password, done) => {
     // get user
@@ -115,9 +113,9 @@ const getLocalStrategy = (): LocalStrategy => {
 };
 
 export {
-  ACCESS_TOKEN_LIFE,
   getLocalStrategy,
   getAccessTokenStrategy,
   getSignedToken,
   generateUserSecret,
+  setAuthCookies,
 };

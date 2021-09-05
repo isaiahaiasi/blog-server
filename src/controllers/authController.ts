@@ -11,9 +11,9 @@ import userQueries from "../queries/userQueries";
 import { getSimpleErrorResponse } from "../middleware/errorHandler";
 import { RegistrationResponse } from "../utils/response-types";
 import {
-  ACCESS_TOKEN_LIFE,
   generateUserSecret,
   getSignedToken,
+  setAuthCookies,
 } from "../config/passportConfig";
 
 const loginUser: RequestHandler = (req, res, next) => {
@@ -37,16 +37,11 @@ const loginUser: RequestHandler = (req, res, next) => {
 
       const token = await getSignedToken(userDataToSend, _id);
 
-      // TODO: extract cookie names to CONSTANT
-      // TODO: extract cookie lifespan length to CONSTANT
-      res.cookie("jwt_a", token, {
-        httpOnly: true,
-        expires: new Date(ACCESS_TOKEN_LIFE + Date.now()),
-      });
-      res.cookie("uid", _id, { httpOnly: true });
+      setAuthCookies(res, token, _id);
 
       return res.json({
-        user: { _id, username }, // duplicate data is redundant, but makes it easier for client to parse...
+        // duplicate data is redundant, but makes it easier for client access...
+        user: { _id, username },
         message: "Login successful!",
       });
     });
