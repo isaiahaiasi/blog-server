@@ -10,7 +10,9 @@ interface UserQueries {
   deleteUserFromDB: { (id: string): Promise<IUser | null> };
   getAllUsersFromDB: { (): Promise<IUser[]> };
   getUserSecretFromDB: { (id: string): Promise<string | null> };
-  setUserSecretInDB: { (id: string, secret: string): Promise<string | null> };
+  setUserSecretInDB: {
+    (identifier: Partial<IUser>, secret: string): Promise<IUser | null>;
+  };
 }
 
 // * Query implementations
@@ -72,18 +74,20 @@ const mongoQueries: UserQueries = {
     return tkey;
   },
 
-  setUserSecretInDB: async (id, secret) => {
-    const userId = castObjectId(id);
+  setUserSecretInDB: async (userIdentifier, secret) => {
+    const { _id, username } = userIdentifier;
 
-    if (!userId) {
-      return null;
+    const userId = castObjectId(_id as string);
+
+    if (_id && userId) {
+      return User.findByIdAndUpdate(userId, {
+        tkey: secret,
+      }).exec();
+    } else if (username) {
+      return User.findOneAndUpdate({ username }, { tkey: secret }).exec();
     }
 
-    const { tkey } = (await User.findByIdAndUpdate(userId, {
-      tkey: secret,
-    }).exec()) as IUser;
-
-    return tkey;
+    return null;
   },
 };
 

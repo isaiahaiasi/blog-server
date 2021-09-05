@@ -11,6 +11,7 @@ import createDebug from "debug";
 import userQueries from "../queries/userQueries";
 import { Response } from "express";
 import { nanoid } from "nanoid";
+import { IUser } from "../models/User";
 
 const debug = createDebug("app:auth");
 
@@ -30,6 +31,10 @@ const setAuthCookies = (res: Response, jwt_a: string, _id: string): void => {
     expires: new Date(ACCESS_TOKEN_LIFE + Date.now()),
   });
   res.cookie("uid", _id, { httpOnly: true });
+};
+
+const setUserSecret = (userIdentifier: Partial<IUser>) => {
+  return userQueries.setUserSecretInDB(userIdentifier, generateUserSecret());
 };
 
 const secretOrKeyProvider: SecretOrKeyProvider = async (
@@ -82,15 +87,13 @@ const getAccessTokenStrategy = (): JwtStrategy => {
   );
 };
 
-// TODO: instead of just grabbing user from db, set a new `tkey`
-// Each new authentication should invalidate existing tokens
-// Putting these into one trip is more efficient
-// NOTE: this isn't great from a usability perspective with multiple clients...
+// NOTE: currently, attempts to log in invalidate existing tokens
+// this isn't great from a usability perspective with multiple clients...
 const getLocalStrategy = (): LocalStrategy => {
   return new LocalStrategy(async (username, password, done) => {
     // get user
     try {
-      const user = await userQueries.getUserFromDB({ username });
+      const user = await setUserSecret({ username });
 
       if (!user) {
         return done(null, false, {

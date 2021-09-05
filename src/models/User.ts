@@ -1,6 +1,7 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, ObjectId } from "mongoose";
 
 export interface IUser {
+  _id?: ObjectId | string; // TODO: not sure how to type this
   username: string;
   password: string;
   tkey: string;
