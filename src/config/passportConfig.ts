@@ -1,8 +1,8 @@
 import { Strategy as LocalStrategy } from "passport-local";
 import {
   Strategy as JwtStrategy,
-  ExtractJwt,
   SecretOrKeyProvider,
+  JwtFromRequestFunction,
 } from "passport-jwt";
 import jwt from "jsonwebtoken";
 import { compare } from "bcryptjs";
@@ -14,8 +14,7 @@ import { IUser } from "../models/User";
 
 const debug = createDebug("app:auth");
 
-// TODO: Implement expiry
-// const ACCESS_TOKEN_LIFE = 300000; // 5 minutes
+const ACCESS_TOKEN_LIFE = 5 * 60 * 1000; // 5 minutes
 
 type AccessToken = Partial<IUser> & {
   _id?: string;
@@ -58,12 +57,14 @@ const getSignedToken = async (
   userId: string
 ): Promise<string> => jwt.sign(content, await getSecret(userId));
 
-// TODO: add expiry
-// TODO: refresh tokens
+const extractTokenFromCookie: JwtFromRequestFunction = (req) =>
+  req && req.cookies ? req.cookies["jwt_a"] : null;
+
+// TODO: implement refresh tokens
 const getAccessTokenStrategy = (): JwtStrategy => {
   return new JwtStrategy(
     {
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: extractTokenFromCookie,
       secretOrKeyProvider,
     },
     async (jwtPayload, done) => {
@@ -83,6 +84,10 @@ const getAccessTokenStrategy = (): JwtStrategy => {
   );
 };
 
+// TODO: instead of just grabbing user from db, set a new `tkey`
+// Each new authentication should invalidate existing tokens
+// TODO: this isn't great from a usability perspective with multiple clients...
+// Putting these into one trip is more efficient
 const getLocalStrategy = (): LocalStrategy => {
   return new LocalStrategy(async (username, password, done) => {
     // get user
@@ -110,6 +115,7 @@ const getLocalStrategy = (): LocalStrategy => {
 };
 
 export {
+  ACCESS_TOKEN_LIFE,
   getLocalStrategy,
   getAccessTokenStrategy,
   getSignedToken,

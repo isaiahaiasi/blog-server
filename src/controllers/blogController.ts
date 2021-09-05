@@ -127,8 +127,9 @@ const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const post = await blogQueries.getBlogFromDBById(req.params.id);
+    const post = await blogQueries.getBlogFromDBById(req.params.blogid);
 
+    console.log("post", post);
     if (!post) {
       res.status(400).json(getNotFoundErrorResponse(req.params.blogid));
       return;

@@ -10,7 +10,11 @@ import { hashPassword } from "../middleware/authentication";
 import userQueries from "../queries/userQueries";
 import { getSimpleErrorResponse } from "../middleware/errorHandler";
 import { RegistrationResponse } from "../utils/response-types";
-import { generateUserSecret, getSignedToken } from "../config/passportConfig";
+import {
+  ACCESS_TOKEN_LIFE,
+  generateUserSecret,
+  getSignedToken,
+} from "../config/passportConfig";
 
 const loginUser: RequestHandler = (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
@@ -28,15 +32,23 @@ const loginUser: RequestHandler = (req, res, next) => {
         return;
       }
 
-      const { _id } = user;
+      const { _id, username } = user;
       const userDataToSend = { _id };
 
       const token = await getSignedToken(userDataToSend, _id);
 
-      // TODO: implement LoginResponse interface, once I actually decide what it should be
-      const responseContent = { user: userDataToSend, token };
+      // TODO: extract cookie names to CONSTANT
+      // TODO: extract cookie lifespan length to CONSTANT
+      res.cookie("jwt_a", token, {
+        httpOnly: true,
+        expires: new Date(ACCESS_TOKEN_LIFE + Date.now()),
+      });
+      res.cookie("uid", _id, { httpOnly: true });
 
-      return res.json(responseContent);
+      return res.json({
+        user: { _id, username }, // duplicate data is redundant, but makes it easier for client to parse...
+        message: "Login successful!",
+      });
     });
   })(req, res, next);
 };
