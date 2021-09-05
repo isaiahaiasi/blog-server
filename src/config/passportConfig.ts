@@ -10,13 +10,13 @@ import { JWT_SECRET } from "../utils/secrets";
 import createDebug from "debug";
 import userQueries from "../queries/userQueries";
 import { Response } from "express";
+import { nanoid } from "nanoid";
 
 const debug = createDebug("app:auth");
 
 const ACCESS_TOKEN_LIFE = 5 * 60 * 1000; // 5 minutes
 
-// TODO: generate a token id/user secret (prob just use nanoid)
-const generateUserSecret = (): string => "todo";
+const generateUserSecret = (): string => nanoid();
 
 // get user-specific secret from db & append to server secret
 const getSecret = async (userId: string) => {
