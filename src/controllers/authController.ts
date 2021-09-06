@@ -28,7 +28,7 @@ const loginUser: RequestHandler = (req, res, next) => {
 
     req.login(user, { session: false }, async (err) => {
       if (err) {
-        res.send(err);
+        res.json(err);
         return;
       }
 

@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
-import createDebug from "debug";
-const debug = createDebug("app:validation");
+import createLogger from "../utils/debugHelper";
+const debug = createLogger("validation");
 
 export const validatorHandler: RequestHandler = (req, res, next) => {
   const errors = validationResult(req);

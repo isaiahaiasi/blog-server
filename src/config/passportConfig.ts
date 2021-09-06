@@ -7,13 +7,13 @@ import {
 import jwt from "jsonwebtoken";
 import { compare } from "bcryptjs";
 import { JWT_SECRET } from "../utils/secrets";
-import createDebug from "debug";
 import userQueries from "../queries/userQueries";
 import { Response } from "express";
 import { nanoid } from "nanoid";
 import { IUser } from "../models/User";
+import createLogger from "../utils/debugHelper";
 
-const debug = createDebug("app:auth");
+const debug = createLogger("auth");
 
 const ACCESS_TOKEN_LIFE = 5 * 60 * 1000; // 5 minutes
 
@@ -31,6 +31,7 @@ const setAuthCookies = (res: Response, jwt_a: string, _id: string): void => {
     expires: new Date(ACCESS_TOKEN_LIFE + Date.now()),
   });
   res.cookie("uid", _id, { httpOnly: true });
+  debug("cookies set");
 };
 
 const setUserSecret = (userIdentifier: Partial<IUser>) => {

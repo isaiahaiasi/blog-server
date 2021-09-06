@@ -10,11 +10,11 @@ import {
   commentValidators,
   postValidators,
 } from "../middleware/postValidators";
-import createDebug from "debug";
 import commentQueries from "../queries/commentQueries";
 import blogQueries from "../queries/blogQueries";
+import createLogger from "../utils/debugHelper";
 
-const debug = createDebug("app:endpoints");
+const debug = createLogger("app:endpoints");
 
 export const getBlogs: RequestHandler = async (req, res, next) => {
   debug("getting blogs...");

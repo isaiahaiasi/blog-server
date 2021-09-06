@@ -71,7 +71,7 @@ const mongoQueries: UserQueries = {
 
     const { tkey } = (await User.findById(userId, "tkey").exec()) as IUser;
 
-    return tkey;
+    return tkey ?? null;
   },
 
   setUserSecretInDB: async (userIdentifier, secret) => {

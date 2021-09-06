@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
+import createLogger from "./debugHelper";
 
-import createDebug from "debug";
-const debug = createDebug("app:endpoints");
+const debug = createLogger("endpoints");
 
 export const castObjectId = (string: string): Types.ObjectId | null => {
   try {

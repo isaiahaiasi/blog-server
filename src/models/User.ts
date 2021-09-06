@@ -4,7 +4,7 @@ export interface IUser {
   _id?: ObjectId | string; // TODO: not sure how to type this
   username: string;
   password: string;
-  tkey: string;
+  tkey?: string;
   // TODO:
   // dateCreated
   // likedPosts

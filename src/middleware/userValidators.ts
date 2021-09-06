@@ -1,8 +1,8 @@
 import { body } from "express-validator";
-import createDebug from "debug";
 import { validatorHandler } from "./validatorHandler";
 import userQueries from "../queries/userQueries";
-const debug = createDebug("app:validation");
+import createLogger from "../utils/debugHelper";
+const debug = createLogger("app:validation");
 
 // TODO: sanitization?
 

@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
 import passport from "passport";
 import bcrypt from "bcryptjs";
+import createLogger from "../utils/debugHelper";
 
-import createDebug from "debug";
-const debug = createDebug("app:auth");
+const debug = createLogger("auth");
 
 // TODO: Don't know where this should actually go...
 declare global {

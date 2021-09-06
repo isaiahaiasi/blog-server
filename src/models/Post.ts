@@ -1,6 +1,6 @@
 import { Types, Schema, model } from "mongoose";
-import debugCreator from "debug";
-const debug = debugCreator("app:schemas");
+import createLogger from "../utils/debugHelper";
+const debug = createLogger("schemas");
 debug("init");
 
 export interface IPost {
