@@ -15,6 +15,9 @@ import {
   getSignedToken,
   setAuthCookies,
 } from "../config/passportConfig";
+import createLogger from "../utils/debugHelper";
+
+const log = createLogger("auth");
 
 const loginUser: RequestHandler = (req, res, next) => {
   passport.authenticate("local", { session: false }, (err, user, info) => {
@@ -23,6 +26,7 @@ const loginUser: RequestHandler = (req, res, next) => {
     }
 
     if (!user) {
+      log("no user!");
       return res.status(400).json(info);
     }
 
@@ -40,7 +44,6 @@ const loginUser: RequestHandler = (req, res, next) => {
       setAuthCookies(res, token, _id);
 
       return res.json({
-        // duplicate data is redundant, but makes it easier for client access...
         user: { _id, username },
         message: "Login successful!",
       });

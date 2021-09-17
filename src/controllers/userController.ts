@@ -19,6 +19,9 @@ import {
   getSimpleErrorResponse,
 } from "../middleware/errorHandler";
 import blogQueries from "../queries/blogQueries";
+import createLogger from "../utils/debugHelper";
+
+const logger = createLogger("endpoints");
 
 const getUserFromDBHandler: RequestHandler = async (req, res, next) => {
   const { userid } = req.params;
@@ -92,6 +95,7 @@ export const getUserPostsFromDatabase: RequestHandler = async (
   next
 ) => {
   try {
+    logger("Getting posts for " + req.params.userid);
     const posts = await blogQueries.getPublishedUserBlogsFromDB(
       req.params.userid
     );

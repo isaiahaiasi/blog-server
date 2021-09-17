@@ -14,7 +14,7 @@ import commentQueries from "../queries/commentQueries";
 import blogQueries from "../queries/blogQueries";
 import createLogger from "../utils/debugHelper";
 
-const debug = createLogger("app:endpoints");
+const debug = createLogger("endpoints");
 
 export const getBlogs: RequestHandler = async (req, res, next) => {
   debug("getting blogs...");
