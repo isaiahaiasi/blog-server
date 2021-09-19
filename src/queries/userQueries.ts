@@ -39,7 +39,7 @@ const mongoQueries: UserQueries = {
   },
 
   getAllUsersFromDB: async () => {
-    return User.find({}).select("-password").exec();
+    return User.find({}).select("-password -tkey").exec();
   },
 
   putUserInDB: async (id, user) => {

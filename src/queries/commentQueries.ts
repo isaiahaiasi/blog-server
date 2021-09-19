@@ -43,7 +43,7 @@ const mongoQueries: CommentQueries = {
     }
 
     return Comment.find({ post: blogId })
-      .populate("author", "-password")
+      .populate("author", "-password -tkey")
       .sort({ createdAt: -1 })
       .exec();
   },

@@ -20,7 +20,7 @@ const mongoQueries: BlogQueries = {
   getAllBlogsFromDB: async () => {
     return Post.find({})
       .sort({ publishDate: -1 })
-      .populate("author", "-password")
+      .populate("author", "-password -tkey")
       .exec();
   },
 
@@ -31,7 +31,7 @@ const mongoQueries: BlogQueries = {
       return null;
     }
 
-    return Post.findById(blogId).populate("author", "-password").exec();
+    return Post.findById(blogId).populate("author", "-password -tkey").exec();
   },
 
   getPublishedUserBlogsFromDB: async (userId) => {
@@ -50,7 +50,7 @@ const mongoQueries: BlogQueries = {
       publishDate: { $lte: currentDate },
     })
       .sort({ publishDate: -1 })
-      .populate("author", "-password")
+      .populate("author", "-password -tkey")
       .exec();
   },
 
@@ -64,7 +64,7 @@ const mongoQueries: BlogQueries = {
     // sort by descending publishDate
     return Post.find({ author })
       .sort({ publishDate: -1 })
-      .populate("author", "-password")
+      .populate("author", "-password -tkey")
       .exec();
   },
 
