@@ -5,6 +5,7 @@ interface BlogQueries {
   getAllBlogsFromDB: { (): Promise<IPost[]> };
   getBlogFromDBById: { (id: string): Promise<IPost | null> };
   getPublishedUserBlogsFromDB: { (userId: string): Promise<IPost[] | null> };
+  getAllUserBlogsFromDB: { (userId: string): Promise<IPost[] | null> };
   updateBlogInDB: { (id: string, blog: Partial<IPost>): Promise<IPost | null> };
   deleteBlogFromDB: { (id: string): Promise<IPost | null> };
   addBlogToDB: { (blog: IPostStringy): Promise<IPost | null> };
@@ -48,6 +49,20 @@ const mongoQueries: BlogQueries = {
       author,
       publishDate: { $lte: currentDate },
     })
+      .sort({ publishDate: -1 })
+      .populate("author", "-password")
+      .exec();
+  },
+
+  getAllUserBlogsFromDB: async (userId) => {
+    const author = castObjectId(userId);
+
+    if (!author) {
+      return author;
+    }
+
+    // sort by descending publishDate
+    return Post.find({ author })
       .sort({ publishDate: -1 })
       .populate("author", "-password")
       .exec();

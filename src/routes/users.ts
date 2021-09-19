@@ -2,6 +2,7 @@ import express from "express";
 import { postRegister } from "../controllers/authController";
 import {
   deleteUser,
+  getAllUserPosts,
   getUserPosts,
   getUsers,
   getUserVerified,
@@ -25,7 +26,11 @@ userRouter.delete("/:userid", deleteUser);
 
 // * USER RESOURCES
 
-// get all blog posts from this user
+// get ALL blog posts from this user
+// TODO: instead of separate route, handle via query string & route handler handler
+userRouter.get("/:userid/blogs-all", getAllUserPosts);
+
+// get all published blog posts from this user
 userRouter.get("/:userid/blogs", getUserPosts);
 
 // post a blog post by this user

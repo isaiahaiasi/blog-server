@@ -88,7 +88,7 @@ const deleteUserFromDatabase: RequestHandler = async (req, res, next) => {
   }
 };
 
-// User resources
+// * User resources
 export const getUserPostsFromDatabase: RequestHandler = async (
   req,
   res,
@@ -99,6 +99,25 @@ export const getUserPostsFromDatabase: RequestHandler = async (
     const posts = await blogQueries.getPublishedUserBlogsFromDB(
       req.params.userid
     );
+
+    return posts && Array.isArray(posts) && posts.length > 0
+      ? res.json(posts)
+      : res.json(getSimpleErrorResponse("No user posts"));
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Retrieve both published and unpublished blog posts
+export const getAllUserPostsFromDatabase: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const userId = req.params.userid;
+    logger("Getting published & unpublished posts for " + userId);
+    const posts = await blogQueries.getAllUserBlogsFromDB(userId);
 
     return posts && Array.isArray(posts) && posts.length > 0
       ? res.json(posts)
@@ -178,6 +197,12 @@ export const deleteUser: RequestHandler[] = [
 
 // user resources
 export const getUserPosts: RequestHandler[] = [getUserPostsFromDatabase];
+
+export const getAllUserPosts: RequestHandler[] = [
+  verifyToken,
+  // verifySameUser,
+  getAllUserPostsFromDatabase,
+];
 
 export const postUserPost: RequestHandler[] = [
   verifyToken,
