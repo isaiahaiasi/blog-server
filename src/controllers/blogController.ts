@@ -1,18 +1,18 @@
 import { RequestHandler } from "express";
 import { verifyToken } from "../middleware/authentication";
 import {
-  getSimpleErrorResponse,
   getNotFoundErrorResponse,
+  getSimpleErrorResponse,
 } from "../middleware/errorHandler";
-import { IPost } from "../models/Post";
-import { castObjectId } from "../utils/mongooseHelpers";
 import {
   commentValidators,
   postValidators,
 } from "../middleware/postValidators";
-import commentQueries from "../queries/commentQueries";
+import { IPost } from "../models/Post";
 import blogQueries from "../queries/blogQueries";
+import commentQueries from "../queries/commentQueries";
 import createLogger from "../utils/debugHelper";
+import { castObjectId } from "../utils/mongooseHelpers";
 
 const debug = createLogger("endpoints");
 
@@ -57,9 +57,12 @@ const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
   };
 
   try {
-    const post = await blogQueries.updateBlogInDB(req.params.id, postUpdate);
+    const post = await blogQueries.updateBlogInDB(
+      req.params.blogid,
+      postUpdate
+    );
     if (post) {
-      res.json(post);
+      res.json({ ...post, ...postUpdate });
       return;
     } else {
       res

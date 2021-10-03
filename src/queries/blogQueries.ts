@@ -85,7 +85,7 @@ const mongoQueries: BlogQueries = {
       return blogId;
     }
 
-    return Post.findByIdAndUpdate(blogId, blog);
+    return Post.findByIdAndUpdate(blogId, blog).lean();
   },
 
   deleteBlogFromDB: async (id) => {
