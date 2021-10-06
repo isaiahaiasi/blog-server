@@ -11,6 +11,7 @@ import {
 import { IPost } from "../models/Post";
 import blogQueries from "../queries/blogQueries";
 import commentQueries from "../queries/commentQueries";
+import { sendAPIResponse } from "../responses/blogResponses";
 import createLogger from "../utils/debugHelper";
 import { castObjectId } from "../utils/mongooseHelpers";
 
@@ -99,13 +100,22 @@ const getBlogCommentsFromDBHandler: RequestHandler = async (req, res, next) => {
     );
 
     if (comments) {
-      res.json(comments);
+      sendAPIResponse(res, {
+        success: true,
+        content: comments,
+      });
     } else {
-      res
-        .status(400)
-        .json(
-          getNotFoundErrorResponse(`Comments for blog id: ${req.params.blogid}`)
-        );
+      sendAPIResponse(
+        res,
+        {
+          success: false,
+          content: null,
+          errors: getNotFoundErrorResponse(
+            `Error retrieving comments for blog id: ${req.params.blogid}`
+          ),
+        },
+        500
+      );
     }
   } catch (err) {
     next(err);
