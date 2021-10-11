@@ -1,9 +1,6 @@
 import { RequestHandler } from "express";
 import { verifyToken } from "../middleware/authentication";
-import {
-  getNotFoundErrorResponse,
-  getSimpleErrorResponse,
-} from "../middleware/errorHandler";
+import { getNotFoundError, getSimpleError } from "../middleware/errorHandler";
 import {
   commentValidators,
   postValidators,
@@ -11,7 +8,14 @@ import {
 import { IPost } from "../models/Post";
 import blogQueries from "../queries/blogQueries";
 import commentQueries from "../queries/commentQueries";
-import { sendAPIResponse } from "../responses/blogResponses";
+import {
+  APIBlogListResponse,
+  APIBlogResponse,
+  APICommentListResponse,
+  APICommentResponse,
+  sendAPIResponse,
+} from "../responses/blogResponses";
+import { APIErrorResponse } from "../responses/generalInterfaces";
 import createLogger from "../utils/debugHelper";
 import { castObjectId } from "../utils/mongooseHelpers";
 
@@ -22,7 +26,10 @@ export const getBlogs: RequestHandler = async (req, res, next) => {
 
   try {
     const posts = await blogQueries.getAllBlogsFromDB();
-    res.json(posts);
+    return sendAPIResponse<APIBlogListResponse>(res, {
+      success: true,
+      content: posts,
+    });
   } catch (err) {
     next(err);
   }
@@ -35,13 +42,20 @@ const getBlogByIdHandler: RequestHandler = async (req, res, next) => {
     const post = await blogQueries.getBlogFromDBById(req.params.blogid);
 
     if (post) {
-      res.json(post);
-      return;
+      return sendAPIResponse<APIBlogResponse>(res, {
+        success: true,
+        content: post,
+      });
     } else {
-      res
-        .status(400)
-        .json(getNotFoundErrorResponse(`Blog post id#${req.params.id}`));
-      return;
+      return sendAPIResponse(
+        res,
+        {
+          success: false,
+          content: null,
+          errors: [getNotFoundError(`Blog post id#${req.params.id}`)],
+        },
+        404
+      );
     }
   } catch (err) {
     next(err);
@@ -63,12 +77,20 @@ const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
       postUpdate
     );
     if (post) {
-      res.json({ ...post, ...postUpdate });
-      return;
+      return sendAPIResponse<APIBlogResponse>(res, {
+        success: true,
+        content: { ...post, ...postUpdate },
+      });
     } else {
-      res
-        .status(400)
-        .json(getNotFoundErrorResponse(`Blog id: ${req.params.blogid}`));
+      return sendAPIResponse<APIErrorResponse>(
+        res,
+        {
+          success: false,
+          content: null,
+          errors: [getNotFoundError(`Blog id: ${req.params.blogid}`)],
+        },
+        404
+      );
     }
   } catch (err) {
     next(err);
@@ -80,10 +102,19 @@ const deleteBlogInDatabase: RequestHandler = async (req, res, next) => {
     const deletedPost = await blogQueries.deleteBlogFromDB(req.params.id);
 
     return deletedPost
-      ? res.json(deletedPost)
-      : res
-          .status(400)
-          .json(getNotFoundErrorResponse(`Blog id: ${req.params.blogid}`));
+      ? sendAPIResponse<APIBlogResponse>(res, {
+          success: true,
+          content: deletedPost,
+        })
+      : sendAPIResponse<APIErrorResponse>(
+          res,
+          {
+            success: false,
+            content: null,
+            errors: [getNotFoundError(`Blog id: ${req.params.blogid}`)],
+          },
+          404
+        );
   } catch (err) {
     next(err);
   }
@@ -100,21 +131,19 @@ const getBlogCommentsFromDBHandler: RequestHandler = async (req, res, next) => {
     );
 
     if (comments) {
-      sendAPIResponse(res, {
+      return sendAPIResponse<APICommentListResponse>(res, {
         success: true,
         content: comments,
       });
     } else {
-      sendAPIResponse(
+      return sendAPIResponse<APIErrorResponse>(
         res,
         {
           success: false,
           content: null,
-          errors: getNotFoundErrorResponse(
-            `Error retrieving comments for blog id: ${req.params.blogid}`
-          ),
+          errors: [getNotFoundError(`Blog id ${req.params.blogid}`)],
         },
-        500
+        404
       );
     }
   } catch (err) {
@@ -122,21 +151,24 @@ const getBlogCommentsFromDBHandler: RequestHandler = async (req, res, next) => {
   }
 };
 
-// TODO: simplify?
 const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
   const blogId = castObjectId(req.params.blogid);
   const userId = castObjectId(req.user?._id ?? "");
 
   if (!blogId) {
-    return res
-      .status(400)
-      .json(getSimpleErrorResponse(`Invalid blog id ${req.params.blogid}`));
+    return sendAPIResponse<APIErrorResponse>(
+      res,
+      {
+        success: false,
+        content: null,
+        errors: [getSimpleError(`Invalid blog id ${req.params.blogid}`)],
+      },
+      400
+    );
   }
 
   if (!userId) {
-    return res
-      .status(401)
-      .json(getSimpleErrorResponse("Invalid user credentials."));
+    return res.status(401).json(getSimpleError("Invalid user credentials."));
   }
 
   try {
@@ -144,8 +176,15 @@ const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
 
     console.log("post", post);
     if (!post) {
-      res.status(400).json(getNotFoundErrorResponse(req.params.blogid));
-      return;
+      return sendAPIResponse<APIErrorResponse>(
+        res,
+        {
+          success: false,
+          content: null,
+          errors: [getNotFoundError(req.params.blogid)],
+        },
+        404
+      );
     }
 
     debug(`Posting comment on blogpost ${blogId}`);
@@ -157,10 +196,21 @@ const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
     });
 
     if (!comment) {
-      res.status(500).json(getSimpleErrorResponse("Could not post comment."));
+      return sendAPIResponse<APIErrorResponse>(
+        res,
+        {
+          success: false,
+          content: null,
+          errors: [getSimpleError("Could not post comment.")],
+        },
+        500
+      );
     }
 
-    res.json(comment);
+    sendAPIResponse<APICommentResponse>(res, {
+      success: true,
+      content: comment,
+    });
   } catch (err) {
     return next(err);
   }

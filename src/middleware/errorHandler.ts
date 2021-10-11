@@ -1,23 +1,14 @@
 import { RequestHandler, ErrorRequestHandler } from "express";
 import createHttpError from "http-errors";
+import { sendAPIResponse } from "../responses/blogResponses";
+import { APIError, APIErrorResponse } from "../responses/generalInterfaces";
 
-// Custom error response generators
-interface SingleErrorResponse {
-  msg: string;
-}
+export const getSimpleError = (msg: string): APIError => ({
+  msg,
+});
 
-interface ErrorResponse {
-  errors: SingleErrorResponse[];
-}
-
-export const getSimpleErrorResponse = (msg: string): ErrorResponse => {
-  return {
-    errors: [{ msg: msg }],
-  };
-};
-
-export const getNotFoundErrorResponse = (name: string): ErrorResponse => ({
-  errors: [{ msg: `${name} not found` }],
+export const getNotFoundError = (name: string): APIError => ({
+  msg: `${name} not found`,
 });
 
 // Express-Generator error handlers
@@ -31,8 +22,13 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.locals.message = err?.message ?? "Not found!";
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
-  const errorResponse = getSimpleErrorResponse(res.locals.message);
-
-  res.status(err?.status ?? 500).json(errorResponse);
-  return;
+  return sendAPIResponse<APIErrorResponse>(
+    res,
+    {
+      success: false,
+      content: null,
+      errors: [{ msg: res.locals.message }],
+    },
+    500
+  );
 };

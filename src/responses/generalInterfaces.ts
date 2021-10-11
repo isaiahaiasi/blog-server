@@ -14,6 +14,12 @@ export interface APIResponse {
   errors?: APIError[];
 }
 
+export interface APIErrorResponse extends APIResponse {
+  success: false;
+  content: null;
+  errors: APIError[];
+}
+
 // a generic error response interface
 // creating for consistency, but also might want to extend it...
 export interface APIError {
