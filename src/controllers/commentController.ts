@@ -1,7 +1,12 @@
 import { RequestHandler } from "express";
-import { verifySameUser, verifyToken } from "../middleware/authentication";
-import { getNotFoundErrorResponse } from "../middleware/errorHandler";
+import { verifyToken } from "../middleware/authentication";
+import { getNotFoundError } from "../middleware/errorHandler";
 import commentQueries from "../queries/commentQueries";
+import { APIErrorResponse } from "../responses/generalInterfaces";
+import {
+  APICommentResponse,
+  sendAPIResponse,
+} from "../responses/responseInterfaces";
 
 const deleteCommentFromDBHandler: RequestHandler = async (req, res, next) => {
   try {
@@ -10,9 +15,20 @@ const deleteCommentFromDBHandler: RequestHandler = async (req, res, next) => {
     );
 
     if (comment) {
-      res.json(comment);
+      return sendAPIResponse<APICommentResponse>(res, {
+        success: true,
+        content: comment,
+      });
     } else {
-      res.status(400).json(getNotFoundErrorResponse(req.params.commentid));
+      return sendAPIResponse<APIErrorResponse>(
+        res,
+        {
+          success: false,
+          content: null,
+          errors: [getNotFoundError(req.params.commentid)],
+        },
+        404
+      );
     }
   } catch (err) {
     next(err);
