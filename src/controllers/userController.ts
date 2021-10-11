@@ -1,24 +1,29 @@
 import { RequestHandler } from "express";
-import { IUser } from "../models/User";
 import {
-  verifyToken,
-  verifySameUser,
   hashPassword,
+  verifySameUser,
+  verifyToken,
 } from "../middleware/authentication";
+import { getNotFoundError, getSimpleError } from "../middleware/errorHandler";
+import { postValidators } from "../middleware/postValidators";
 import {
-  validatePasswordsMatch,
-  validatePassword,
-  validateUsername,
   passwordValidator,
+  validatePassword,
+  validatePasswordsMatch,
+  validateUsername,
 } from "../middleware/userValidators";
 import { ifPresent, validatorHandler } from "../middleware/validatorHandler";
-import { postValidators } from "../middleware/postValidators";
-import userQueries from "../queries/userQueries";
-import {
-  getNotFoundErrorResponse,
-  getSimpleErrorResponse,
-} from "../middleware/errorHandler";
+import { IUser } from "../models/User";
 import blogQueries from "../queries/blogQueries";
+import userQueries from "../queries/userQueries";
+import { APIErrorResponse } from "../responses/generalInterfaces";
+import {
+  APIBlogListResponse,
+  APIBlogResponse,
+  APIUserListResponse,
+  APIUserResponse,
+  sendAPIResponse,
+} from "../responses/responseInterfaces";
 import createLogger from "../utils/debugHelper";
 
 const logger = createLogger("endpoints");
@@ -29,9 +34,20 @@ const getUserFromDBHandler: RequestHandler = async (req, res, next) => {
   try {
     const user = await userQueries.getUserFromDBById(userid);
     if (user) {
-      res.json(user);
+      return sendAPIResponse<APIUserResponse>(res, {
+        success: true,
+        content: user,
+      });
     } else {
-      res.json(getNotFoundErrorResponse(userid));
+      return sendAPIResponse<APIErrorResponse>(
+        res,
+        {
+          success: false,
+          content: null,
+          errors: [getNotFoundError(userid)],
+        },
+        404
+      );
     }
   } catch (err) {
     next(err);
@@ -41,7 +57,11 @@ const getUserFromDBHandler: RequestHandler = async (req, res, next) => {
 const getAllUsersHandler: RequestHandler = async (req, res, next) => {
   try {
     const users = await userQueries.getAllUsersFromDB();
-    res.json(users);
+
+    return sendAPIResponse<APIUserListResponse>(res, {
+      success: true,
+      content: users,
+    });
   } catch (err) {
     next(err);
   }
@@ -61,11 +81,20 @@ const putUserInDBHandler: RequestHandler = async (req, res, next) => {
     const user = await userQueries.putUserInDB(req.params.id, updatedUser);
 
     if (user) {
-      return res.json(user);
+      return sendAPIResponse<APIUserResponse>(res, {
+        success: true,
+        content: user,
+      });
     } else {
-      return res
-        .status(400)
-        .json(getNotFoundErrorResponse(`User ${req.params.id}`));
+      return sendAPIResponse<APIErrorResponse>(
+        res,
+        {
+          success: false,
+          content: null,
+          errors: [getNotFoundError(`User ${req.params.id}`)],
+        },
+        404
+      );
     }
   } catch (err) {
     next(err);
@@ -77,11 +106,20 @@ const deleteUserFromDatabase: RequestHandler = async (req, res, next) => {
     const user = await userQueries.deleteUserFromDB(req.params.userid);
 
     if (user) {
-      return res.json(user);
+      return sendAPIResponse<APIUserResponse>(res, {
+        success: true,
+        content: user,
+      });
     } else {
-      return res
-        .status(400)
-        .json(getNotFoundErrorResponse(`User ${req.params.id}`));
+      return sendAPIResponse<APIErrorResponse>(
+        res,
+        {
+          success: false,
+          content: null,
+          errors: [getNotFoundError(`User ${req.params.id}`)],
+        },
+        404
+      );
     }
   } catch (err) {
     next(err);
@@ -101,8 +139,19 @@ export const getUserPostsFromDatabase: RequestHandler = async (
     );
 
     return posts && Array.isArray(posts) && posts.length > 0
-      ? res.json(posts)
-      : res.json(getSimpleErrorResponse("No user posts"));
+      ? sendAPIResponse<APIBlogListResponse>(res, {
+          success: true,
+          content: posts,
+        })
+      : sendAPIResponse<APIErrorResponse>(
+          res,
+          {
+            success: false,
+            content: null,
+            errors: [getSimpleError("No user posts")],
+          },
+          400
+        );
   } catch (err) {
     next(err);
   }
@@ -116,12 +165,25 @@ export const getAllUserPostsFromDatabase: RequestHandler = async (
 ) => {
   try {
     const userId = req.params.userid;
+
     logger("Getting published & unpublished posts for " + userId);
+
     const posts = await blogQueries.getAllUserBlogsFromDB(userId);
 
     return posts && Array.isArray(posts) && posts.length > 0
-      ? res.json(posts)
-      : res.json(getSimpleErrorResponse("No user posts"));
+      ? sendAPIResponse<APIBlogListResponse>(res, {
+          success: true,
+          content: posts,
+        })
+      : sendAPIResponse<APIErrorResponse>(
+          res,
+          {
+            success: false,
+            content: null,
+            errors: [getSimpleError("No user posts")],
+          },
+          400
+        );
   } catch (err) {
     next(err);
   }
@@ -145,10 +207,19 @@ export const postUserPostToDatabase: RequestHandler = async (
     console.log("post", post);
 
     return post
-      ? res.json(post)
-      : res
-          .status(500)
-          .json(getSimpleErrorResponse("Could not add blog post to database."));
+      ? sendAPIResponse<APIBlogResponse>(res, {
+          success: true,
+          content: post,
+        })
+      : sendAPIResponse<APIErrorResponse>(
+          res,
+          {
+            success: false,
+            content: null,
+            errors: [getSimpleError("Could not add blog post to database.")],
+          },
+          500
+        );
   } catch (err) {
     next(err);
   }

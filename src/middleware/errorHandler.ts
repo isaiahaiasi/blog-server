@@ -1,6 +1,6 @@
 import { RequestHandler, ErrorRequestHandler } from "express";
 import createHttpError from "http-errors";
-import { sendAPIResponse } from "../responses/blogResponses";
+import { sendAPIResponse } from "../responses/responseInterfaces";
 import { APIError, APIErrorResponse } from "../responses/generalInterfaces";
 
 export const getSimpleError = (msg: string): APIError => ({

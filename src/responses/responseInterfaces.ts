@@ -3,6 +3,7 @@
 import { Response } from "express";
 import { IComment } from "../models/Comment";
 import { IPost } from "../models/Post";
+import { IUser } from "../models/User";
 import { APIResponse } from "./generalInterfaces";
 
 // TODO: some APIResponseFactory to implement these interfaces
@@ -16,31 +17,30 @@ export function sendAPIResponse<T>(
   res.status(responseCode).json(body);
 }
 
-// eg:
-// GET blogs/:blogid
-// PUT blogs/:blogid
-// DELETE blogs/:blogid
-// POST /users/:userid/blogs
-export interface APIBlogResponse extends APIResponse {
+interface SuccessfulAPIResponse extends APIResponse {
+  success: true;
+}
+
+export interface APIBlogResponse extends SuccessfulAPIResponse {
   content: IPost | null;
 }
 
-// eg:
-// GET /blogs
-// GET /users/:userid/blogs
-// GET /users/:userid/blogs-all
-export interface APIBlogListResponse extends APIResponse {
+export interface APIBlogListResponse extends SuccessfulAPIResponse {
   content: IPost[] | null;
 }
 
-// eg:
-// POST /:blogid/comments
-export interface APICommentResponse extends APIResponse {
+export interface APICommentResponse extends SuccessfulAPIResponse {
   content: IComment | null;
 }
 
-// eg:
-// GET /:blogid/comments
-export interface APICommentListResponse extends APIResponse {
+export interface APICommentListResponse extends SuccessfulAPIResponse {
   content: IComment[] | null;
+}
+
+export interface APIUserResponse extends SuccessfulAPIResponse {
+  content: IUser | null;
+}
+
+export interface APIUserListResponse extends SuccessfulAPIResponse {
+  content: IUser[] | null;
 }
