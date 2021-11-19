@@ -1,6 +1,6 @@
 // The base response interfaces that others descend from
 
-export interface APIResponse {
+export interface GenericAPIResponse {
   // general result of the request
   // if request did not return an expected result
   // then this should be false
@@ -14,7 +14,7 @@ export interface APIResponse {
   errors?: APIError[];
 }
 
-export interface APIErrorResponse extends APIResponse {
+export interface APIErrorResponse extends GenericAPIResponse {
   success: false;
   content: null;
   errors: APIError[];

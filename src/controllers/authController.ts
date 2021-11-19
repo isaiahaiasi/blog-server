@@ -8,7 +8,6 @@ import {
 import { validatorHandler } from "../middleware/validatorHandler";
 import { hashPassword } from "../middleware/authentication";
 import userQueries from "../queries/userQueries";
-import { getSimpleErrorResponse } from "../middleware/errorHandler";
 import { RegistrationResponse } from "../utils/response-types";
 import {
   generateUserSecret,
@@ -16,6 +15,9 @@ import {
   setAuthCookies,
 } from "../config/passportConfig";
 import createLogger from "../utils/debugHelper";
+import { getSimpleError } from "../middleware/errorHandler";
+import { sendAPIResponse } from "../responses/responseInterfaces";
+import { APIErrorResponse } from "../responses/generalInterfaces";
 
 const log = createLogger("auth");
 
@@ -73,9 +75,15 @@ const registerUser: RequestHandler = async (req, res, next) => {
 
       res.json(responseContent);
     } else {
-      res
-        .status(400)
-        .json(getSimpleErrorResponse("Could not create new user record"));
+      return sendAPIResponse<APIErrorResponse>(
+        res,
+        {
+          success: false,
+          content: null,
+          errors: [getSimpleError("Could not create new user record")],
+        },
+        500
+      );
     }
   } catch (err) {
     next(err);

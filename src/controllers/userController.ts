@@ -13,17 +13,12 @@ import {
   validateUsername,
 } from "../middleware/userValidators";
 import { ifPresent, validatorHandler } from "../middleware/validatorHandler";
+import { IPost } from "../models/Post";
 import { IUser } from "../models/User";
 import blogQueries from "../queries/blogQueries";
 import userQueries from "../queries/userQueries";
 import { APIErrorResponse } from "../responses/generalInterfaces";
-import {
-  APIBlogListResponse,
-  APIBlogResponse,
-  APIUserListResponse,
-  APIUserResponse,
-  sendAPIResponse,
-} from "../responses/responseInterfaces";
+import { APIResponse, sendAPIResponse } from "../responses/responseInterfaces";
 import createLogger from "../utils/debugHelper";
 
 const logger = createLogger("endpoints");
@@ -34,7 +29,7 @@ const getUserFromDBHandler: RequestHandler = async (req, res, next) => {
   try {
     const user = await userQueries.getUserFromDBById(userid);
     if (user) {
-      return sendAPIResponse<APIUserResponse>(res, {
+      return sendAPIResponse<APIResponse<IUser>>(res, {
         success: true,
         content: user,
       });
@@ -58,7 +53,7 @@ const getAllUsersHandler: RequestHandler = async (req, res, next) => {
   try {
     const users = await userQueries.getAllUsersFromDB();
 
-    return sendAPIResponse<APIUserListResponse>(res, {
+    return sendAPIResponse<APIResponse<IUser[]>>(res, {
       success: true,
       content: users,
     });
@@ -81,7 +76,7 @@ const putUserInDBHandler: RequestHandler = async (req, res, next) => {
     const user = await userQueries.putUserInDB(req.params.id, updatedUser);
 
     if (user) {
-      return sendAPIResponse<APIUserResponse>(res, {
+      return sendAPIResponse<APIResponse<IUser>>(res, {
         success: true,
         content: user,
       });
@@ -106,7 +101,7 @@ const deleteUserFromDatabase: RequestHandler = async (req, res, next) => {
     const user = await userQueries.deleteUserFromDB(req.params.userid);
 
     if (user) {
-      return sendAPIResponse<APIUserResponse>(res, {
+      return sendAPIResponse<APIResponse<IUser>>(res, {
         success: true,
         content: user,
       });
@@ -139,7 +134,7 @@ export const getUserPostsFromDatabase: RequestHandler = async (
     );
 
     return posts && Array.isArray(posts) && posts.length > 0
-      ? sendAPIResponse<APIBlogListResponse>(res, {
+      ? sendAPIResponse<APIResponse<IPost[]>>(res, {
           success: true,
           content: posts,
         })
@@ -171,7 +166,7 @@ export const getAllUserPostsFromDatabase: RequestHandler = async (
     const posts = await blogQueries.getAllUserBlogsFromDB(userId);
 
     return posts && Array.isArray(posts) && posts.length > 0
-      ? sendAPIResponse<APIBlogListResponse>(res, {
+      ? sendAPIResponse<APIResponse<IPost[]>>(res, {
           success: true,
           content: posts,
         })
@@ -207,7 +202,7 @@ export const postUserPostToDatabase: RequestHandler = async (
     console.log("post", post);
 
     return post
-      ? sendAPIResponse<APIBlogResponse>(res, {
+      ? sendAPIResponse<APIResponse<IPost>>(res, {
           success: true,
           content: post,
         })

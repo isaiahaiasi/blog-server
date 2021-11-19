@@ -1,12 +1,10 @@
 import { RequestHandler } from "express";
 import { verifyToken } from "../middleware/authentication";
 import { getNotFoundError } from "../middleware/errorHandler";
+import { IComment } from "../models/Comment";
 import commentQueries from "../queries/commentQueries";
 import { APIErrorResponse } from "../responses/generalInterfaces";
-import {
-  APICommentResponse,
-  sendAPIResponse,
-} from "../responses/responseInterfaces";
+import { APIResponse, sendAPIResponse } from "../responses/responseInterfaces";
 
 const deleteCommentFromDBHandler: RequestHandler = async (req, res, next) => {
   try {
@@ -15,7 +13,7 @@ const deleteCommentFromDBHandler: RequestHandler = async (req, res, next) => {
     );
 
     if (comment) {
-      return sendAPIResponse<APICommentResponse>(res, {
+      return sendAPIResponse<APIResponse<IComment>>(res, {
         success: true,
         content: comment,
       });

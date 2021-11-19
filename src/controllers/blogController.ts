@@ -5,17 +5,12 @@ import {
   commentValidators,
   postValidators,
 } from "../middleware/postValidators";
+import { IComment } from "../models/Comment";
 import { IPost } from "../models/Post";
 import blogQueries from "../queries/blogQueries";
 import commentQueries from "../queries/commentQueries";
 import { APIErrorResponse } from "../responses/generalInterfaces";
-import {
-  APIBlogListResponse,
-  APIBlogResponse,
-  APICommentListResponse,
-  APICommentResponse,
-  sendAPIResponse,
-} from "../responses/responseInterfaces";
+import { APIResponse, sendAPIResponse } from "../responses/responseInterfaces";
 import createLogger from "../utils/debugHelper";
 import { castObjectId } from "../utils/mongooseHelpers";
 
@@ -26,7 +21,7 @@ export const getBlogs: RequestHandler = async (req, res, next) => {
 
   try {
     const posts = await blogQueries.getAllBlogsFromDB();
-    return sendAPIResponse<APIBlogListResponse>(res, {
+    return sendAPIResponse<APIResponse<IPost[]>>(res, {
       success: true,
       content: posts,
     });
@@ -42,7 +37,7 @@ const getBlogByIdHandler: RequestHandler = async (req, res, next) => {
     const post = await blogQueries.getBlogFromDBById(req.params.blogid);
 
     if (post) {
-      return sendAPIResponse<APIBlogResponse>(res, {
+      return sendAPIResponse<APIResponse<IPost>>(res, {
         success: true,
         content: post,
       });
@@ -77,7 +72,7 @@ const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
       postUpdate
     );
     if (post) {
-      return sendAPIResponse<APIBlogResponse>(res, {
+      return sendAPIResponse<APIResponse<IPost>>(res, {
         success: true,
         content: { ...post, ...postUpdate },
       });
@@ -102,7 +97,7 @@ const deleteBlogInDatabase: RequestHandler = async (req, res, next) => {
     const deletedPost = await blogQueries.deleteBlogFromDB(req.params.id);
 
     return deletedPost
-      ? sendAPIResponse<APIBlogResponse>(res, {
+      ? sendAPIResponse<APIResponse<IPost>>(res, {
           success: true,
           content: deletedPost,
         })
@@ -131,7 +126,7 @@ const getBlogCommentsFromDBHandler: RequestHandler = async (req, res, next) => {
     );
 
     if (comments) {
-      return sendAPIResponse<APICommentListResponse>(res, {
+      return sendAPIResponse<APIResponse<IComment[]>>(res, {
         success: true,
         content: comments,
       });
@@ -207,7 +202,7 @@ const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
       );
     }
 
-    sendAPIResponse<APICommentResponse>(res, {
+    sendAPIResponse<APIResponse<IComment>>(res, {
       success: true,
       content: comment,
     });
