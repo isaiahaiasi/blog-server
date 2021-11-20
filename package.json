@@ -1,15 +1,17 @@
 {
   "name": "blog-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "An API for a simple microblogging platform.",
   "main": "index.js",
   "scripts": {
     "watch-ts": "tsc -w",
-    "start-dev": "nodemon --inspect dist/app.js",
+    "build": "tsc -p .",
+    "dev": "nodemon src/app.ts",
+    "start": "NODE_PATH=./dist node dist/app.js",
     "test": "jest"
   },
   "keywords": [],
-  "author": "",
+  "author": "Isaiah Althouse",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",

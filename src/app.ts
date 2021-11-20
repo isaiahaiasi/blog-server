@@ -26,7 +26,9 @@ initializeMongoose();
 
 // Global Middleware
 
+// TODO: origins should be saved in env
 app.use(cors({ origin: "http://localhost:8080", credentials: true }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -38,7 +40,7 @@ app.use(passport.initialize());
 // ROUTES
 
 app.route("/").get((req, res) => {
-  res.send("Hello ts guys!");
+  res.send("This is not a valid endpoint.\n");
 });
 
 app.use("/api/auth", authRouter);
