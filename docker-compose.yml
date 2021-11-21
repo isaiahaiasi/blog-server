@@ -11,7 +11,7 @@ services:
       - ./nodemon.json:/home/node/app/nodemon.json
     container_name: blog-server
     expose:
-      - '3000'
+      - '${PORT}'
     ports:
-      - '3000:3000'
+      - '${PORT}:${PORT}'
     command: npm run dev
