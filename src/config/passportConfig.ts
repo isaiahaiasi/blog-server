@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 import { compare } from "bcryptjs";
 import { JWT_SECRET } from "../utils/secrets";
 import userQueries from "../queries/userQueries";
-import { Response } from "express";
+import { CookieOptions, Response } from "express";
 import { nanoid } from "nanoid";
 import { IUser } from "../models/User";
 import createLogger from "../utils/debugHelper";
@@ -26,11 +26,17 @@ const getSecret = async (userId: string) => {
 };
 
 const setAuthCookies = (res: Response, jwt_a: string, _id: string): void => {
-  res.cookie("jwt_a", jwt_a, {
+  const sharedCookieHeaders: Partial<CookieOptions> = {
     httpOnly: true,
+    sameSite: "none",
+    secure: true,
+  };
+
+  res.cookie("jwt_a", jwt_a, {
     expires: new Date(ACCESS_TOKEN_LIFE + Date.now()),
+    ...sharedCookieHeaders,
   });
-  res.cookie("uid", _id, { httpOnly: true });
+  res.cookie("uid", _id, sharedCookieHeaders);
   debug("cookies set");
 };
 
