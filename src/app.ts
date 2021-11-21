@@ -1,5 +1,5 @@
 // config imports
-import { PORT } from "./utils/secrets";
+import { ALLOWED_ORIGINS, PORT } from "./utils/secrets";
 import express from "express";
 
 // middleware imports
@@ -26,8 +26,7 @@ initializeMongoose();
 
 // Global Middleware
 
-// TODO: origins should be saved in env
-app.use(cors({ origin: "http://localhost:8080", credentials: true }));
+app.use(cors({ origin: ALLOWED_ORIGINS, credentials: true }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
