@@ -1,6 +1,6 @@
 import request from "supertest";
 import { Application } from "express";
-import { LoginResponse } from "../../utils/response-types";
+import { LoginResponse } from "../../responses/responseInterfaces";
 
 // just register a user, log in, and return the user + jwt
 // this is predicated on the db being established already

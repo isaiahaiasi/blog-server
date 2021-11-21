@@ -9,8 +9,11 @@ import { IComment } from "../models/Comment";
 import { IPost } from "../models/Post";
 import blogQueries from "../queries/blogQueries";
 import commentQueries from "../queries/commentQueries";
-import { APIErrorResponse } from "../responses/generalInterfaces";
-import { APIResponse, sendAPIResponse } from "../responses/responseInterfaces";
+import {
+  APIErrorResponse,
+  APIResponse,
+  sendAPIResponse,
+} from "../responses/responseInterfaces";
 import createLogger from "../utils/debugHelper";
 import { castObjectId } from "../utils/mongooseHelpers";
 

@@ -17,8 +17,11 @@ import { IPost } from "../models/Post";
 import { IUser } from "../models/User";
 import blogQueries from "../queries/blogQueries";
 import userQueries from "../queries/userQueries";
-import { APIErrorResponse } from "../responses/generalInterfaces";
-import { APIResponse, sendAPIResponse } from "../responses/responseInterfaces";
+import {
+  APIErrorResponse,
+  APIResponse,
+  sendAPIResponse,
+} from "../responses/responseInterfaces";
 import createLogger from "../utils/debugHelper";
 
 const logger = createLogger("endpoints");

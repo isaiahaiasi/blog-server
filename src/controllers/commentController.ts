@@ -3,8 +3,11 @@ import { verifyToken } from "../middleware/authentication";
 import { getNotFoundError } from "../middleware/errorHandler";
 import { IComment } from "../models/Comment";
 import commentQueries from "../queries/commentQueries";
-import { APIErrorResponse } from "../responses/generalInterfaces";
-import { APIResponse, sendAPIResponse } from "../responses/responseInterfaces";
+import {
+  APIErrorResponse,
+  APIResponse,
+  sendAPIResponse,
+} from "../responses/responseInterfaces";
 
 const deleteCommentFromDBHandler: RequestHandler = async (req, res, next) => {
   try {

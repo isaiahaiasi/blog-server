@@ -8,7 +8,6 @@ import {
 import { validatorHandler } from "../middleware/validatorHandler";
 import { hashPassword } from "../middleware/authentication";
 import userQueries from "../queries/userQueries";
-import { RegistrationResponse } from "../utils/response-types";
 import {
   generateUserSecret,
   getSignedToken,
@@ -16,8 +15,12 @@ import {
 } from "../config/passportConfig";
 import createLogger from "../utils/debugHelper";
 import { getSimpleError } from "../middleware/errorHandler";
-import { sendAPIResponse } from "../responses/responseInterfaces";
-import { APIErrorResponse } from "../responses/generalInterfaces";
+import {
+  APIErrorResponse,
+  LoginResponse,
+  RegistrationResponse,
+  sendAPIResponse,
+} from "../responses/responseInterfaces";
 
 const log = createLogger("auth");
 
@@ -45,9 +48,9 @@ const loginUser: RequestHandler = (req, res, next) => {
 
       setAuthCookies(res, token, _id);
 
-      return res.json({
-        user: { _id, username },
-        message: "Login successful!",
+      return sendAPIResponse<LoginResponse>(res, {
+        content: { _id, username },
+        success: true,
       });
     });
   })(req, res, next);
@@ -68,12 +71,10 @@ const registerUser: RequestHandler = async (req, res, next) => {
     });
 
     if (user) {
-      const responseContent: RegistrationResponse = {
-        user,
-        msg: "Registration successful!",
-      };
-
-      res.json(responseContent);
+      return sendAPIResponse<RegistrationResponse>(res, {
+        content: user,
+        success: true,
+      });
     } else {
       return sendAPIResponse<APIErrorResponse>(
         res,

@@ -1,7 +1,10 @@
 import { RequestHandler, ErrorRequestHandler } from "express";
 import createHttpError from "http-errors";
-import { sendAPIResponse } from "../responses/responseInterfaces";
-import { APIError, APIErrorResponse } from "../responses/generalInterfaces";
+import {
+  APIError,
+  APIErrorResponse,
+  sendAPIResponse,
+} from "../responses/responseInterfaces";
 
 export const getSimpleError = (msg: string): APIError => ({
   msg,
