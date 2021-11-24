@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { MONGODB_URI } from "./utils/secrets";
+import { MONGODB_URI } from "./secrets";
 
 const initializeMongoose = (): mongoose.Connection => {
   mongoose.connect(MONGODB_URI, {

@@ -6,20 +6,25 @@ import {
 } from "passport-jwt";
 import jwt from "jsonwebtoken";
 import { compare } from "bcryptjs";
-import { JWT_SECRET } from "../utils/secrets";
+import { JWT_SECRET } from "./secrets";
 import userQueries from "../queries/userQueries";
 import { CookieOptions, Response } from "express";
 import { nanoid } from "nanoid";
 import { IUser } from "../models/User";
 import createLogger from "../utils/debugHelper";
+import bcrypt from "bcryptjs";
 
 const debug = createLogger("auth");
 
-const ACCESS_TOKEN_LIFE = 5 * 60 * 1000; // 5 minutes
+const ACCESS_TOKEN_LIFE = 60 * 60 * 1000; // 60 minutes
 
 const generateUserSecret = (): string => nanoid();
 
-// get user-specific secret from db & append to server secret
+export const hashPassword = async (password: string): Promise<string> => {
+  return await bcrypt.hash(password, 10);
+};
+
+// Get user-specific secret from db & append to server secret
 const getSecret = async (userId: string) => {
   const userSecret = await userQueries.getUserSecretFromDB(userId);
   return JWT_SECRET + userSecret;
@@ -44,11 +49,7 @@ const setUserSecret = (userIdentifier: Partial<IUser>) => {
   return userQueries.setUserSecretInDB(userIdentifier, generateUserSecret());
 };
 
-const secretOrKeyProvider: SecretOrKeyProvider = async (
-  req,
-  rawJwtToken,
-  done
-) => {
+const secretOrKeyProvider: SecretOrKeyProvider = async (req, rawJwt, done) => {
   const userId = req.cookies.uid;
 
   if (!userId) {
@@ -70,7 +71,6 @@ const getSignedToken = async (
 const extractTokenFromCookie: JwtFromRequestFunction = (req) =>
   req && req.cookies ? req.cookies["jwt_a"] : null;
 
-// TODO: implement refresh tokens
 const getAccessTokenStrategy = (): JwtStrategy => {
   return new JwtStrategy(
     {
@@ -78,9 +78,6 @@ const getAccessTokenStrategy = (): JwtStrategy => {
       secretOrKeyProvider,
     },
     async (jwtPayload, done) => {
-      // TODO: ? omit the call to the db, since the user info IS the jwtPayload?
-      debug("jwtPayload:%O", jwtPayload);
-
       try {
         const user = await userQueries.getUserFromDBById(jwtPayload._id);
 
@@ -94,11 +91,9 @@ const getAccessTokenStrategy = (): JwtStrategy => {
   );
 };
 
-// NOTE: currently, attempts to log in invalidate existing tokens
-// this isn't great from a usability perspective with multiple clients...
+// Login strategy ()
 const getLocalStrategy = (): LocalStrategy => {
   return new LocalStrategy(async (username, password, done) => {
-    // get user
     try {
       const user = await setUserSecret({ username });
 

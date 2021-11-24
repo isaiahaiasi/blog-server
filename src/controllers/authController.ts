@@ -6,11 +6,11 @@ import {
   validateUsername,
 } from "../middleware/userValidators";
 import { validatorHandler } from "../middleware/validatorHandler";
-import { hashPassword } from "../middleware/authentication";
 import userQueries from "../queries/userQueries";
 import {
   generateUserSecret,
   getSignedToken,
+  hashPassword,
   setAuthCookies,
 } from "../config/passportConfig";
 import createLogger from "../utils/debugHelper";
@@ -25,20 +25,35 @@ import {
 const log = createLogger("auth");
 
 const loginUser: RequestHandler = (req, res, next) => {
-  passport.authenticate("local", { session: false }, (err, user, info) => {
+  passport.authenticate("local", { session: false }, (err, user) => {
     if (err) {
       return next(err);
     }
 
     if (!user) {
       log("no user!");
-      return res.status(400).json(info);
+      return sendAPIResponse<APIErrorResponse>(
+        res,
+        {
+          success: false,
+          errors: [{ msg: "Could not find user record." }],
+          content: null,
+        },
+        400
+      );
     }
 
     req.login(user, { session: false }, async (err) => {
       if (err) {
-        res.json(err);
-        return;
+        return sendAPIResponse<APIErrorResponse>(
+          res,
+          {
+            success: false,
+            errors: [err],
+            content: null,
+          },
+          500
+        );
       }
 
       const { _id, username } = user;

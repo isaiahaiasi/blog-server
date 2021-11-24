@@ -234,7 +234,6 @@ export const deleteBlog: RequestHandler[] = [
 
 export const postComment: RequestHandler[] = [
   verifyToken,
-  // TODO: authorization
   ...commentValidators,
   postCommentToDBHandler,
 ];

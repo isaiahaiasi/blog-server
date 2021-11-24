@@ -1,9 +1,6 @@
 import { RequestHandler } from "express";
-import {
-  hashPassword,
-  verifySameUser,
-  verifyToken,
-} from "../middleware/authentication";
+import { hashPassword } from "../config/passportConfig";
+import { verifySameUser, verifyToken } from "../middleware/authentication";
 import { getNotFoundError, getSimpleError } from "../middleware/errorHandler";
 import { postValidators } from "../middleware/postValidators";
 import {

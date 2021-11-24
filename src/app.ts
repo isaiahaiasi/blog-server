@@ -1,5 +1,5 @@
 // config imports
-import { ALLOWED_ORIGINS, PORT } from "./utils/secrets";
+import { ALLOWED_ORIGINS, PORT } from "./config/secrets";
 import express from "express";
 
 // middleware imports
@@ -16,7 +16,7 @@ import authRouter from "./routes/auth";
 import userRouter from "./routes/users";
 import blogRouter from "./routes/blogs";
 import commentRouter from "./routes/comments";
-import initializeMongoose from "./mongoConfig";
+import initializeMongoose from "./config/mongoConfig";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -36,8 +36,8 @@ app.use(cookieParser());
 passport.use(getLocalStrategy());
 passport.use(getAccessTokenStrategy());
 app.use(passport.initialize());
-// ROUTES
 
+// ROUTES
 app.route("/").get((req, res) => {
   res.send("This is not a valid endpoint.\n");
 });

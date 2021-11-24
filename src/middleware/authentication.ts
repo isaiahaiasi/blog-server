@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import passport from "passport";
-import bcrypt from "bcryptjs";
 import createLogger from "../utils/debugHelper";
 
 const debug = createLogger("auth");
@@ -28,8 +27,4 @@ export const verifySameUser: RequestHandler = (req, res, next) => {
     debug("Failed user match");
     next({ message: "Failed user match", status: 403 });
   }
-};
-
-export const hashPassword = async (password: string): Promise<string> => {
-  return await bcrypt.hash(password, 10);
 };

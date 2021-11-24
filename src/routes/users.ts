@@ -9,7 +9,7 @@ import {
   postUserPost,
   putUser,
 } from "../controllers/userController";
-import sendNotImplemented from "../utils/tempControllers";
+import sendNotImplemented from "../controllers/notImplementedController";
 
 const userRouter = express.Router();
 
