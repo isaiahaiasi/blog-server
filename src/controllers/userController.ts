@@ -1,6 +1,9 @@
 import { RequestHandler } from "express";
 import { hashPassword } from "../config/passportConfig";
-import { verifySameUser, verifyToken } from "../middleware/authentication";
+import {
+  verifySameUserFactory,
+  verifyToken,
+} from "../middleware/authentication";
 import { getNotFoundError, getSimpleError } from "../middleware/errorHandler";
 import { postValidators } from "../middleware/postValidators";
 import {
@@ -249,7 +252,7 @@ export const putUser: RequestHandler[] = [
   ifPresent(validatePasswordsMatch, "passwordConfirm"),
   validatorHandler,
   verifyToken,
-  verifySameUser,
+  // verifySameUser,
   putUserInDBHandler,
 ];
 
@@ -257,7 +260,7 @@ export const putUser: RequestHandler[] = [
 export const deleteUser: RequestHandler[] = [
   ...passwordValidator,
   verifyToken,
-  verifySameUser,
+  // verifySameUser,
   deleteUserFromDatabase,
 ];
 
@@ -266,13 +269,13 @@ export const getUserPosts: RequestHandler[] = [getUserPostsFromDatabase];
 
 export const getAllUserPosts: RequestHandler[] = [
   verifyToken,
-  // verifySameUser,
+  verifySameUserFactory(userQueries.getUserFromDBById, "userid", "_id"),
   getAllUserPostsFromDatabase,
 ];
 
 export const postUserPost: RequestHandler[] = [
   verifyToken,
-  verifySameUser,
+  // verifySameUser,
   ...postValidators,
   postUserPostToDatabase,
 ];
