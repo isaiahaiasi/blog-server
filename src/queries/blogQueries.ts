@@ -2,7 +2,7 @@ import Post, { IPost } from "../models/Post";
 import { castObjectId } from "../utils/mongooseHelpers";
 
 interface BlogQueries {
-  getAllBlogsFromDB: { (): Promise<IPost[]> };
+  getAllBlogsFromDB: { (maxResults: number): Promise<IPost[]> };
   getBlogFromDBById: { (id: string): Promise<IPost | null> };
   getPublishedUserBlogsFromDB: { (userId: string): Promise<IPost[] | null> };
   getAllUserBlogsFromDB: { (userId: string): Promise<IPost[] | null> };
@@ -17,9 +17,13 @@ interface BlogQueries {
 type IPostStringy = Omit<IPost, "author"> & { author: string };
 
 const mongoQueries: BlogQueries = {
-  getAllBlogsFromDB: async () => {
-    return Post.find({})
+  getAllBlogsFromDB: async (maxResults: number) => {
+    const currentDate = new Date();
+    return Post.find({
+      publishDate: { $lte: currentDate },
+    })
       .sort({ publishDate: -1 })
+      .limit(maxResults)
       .populate("author", "-password -tkey")
       .exec();
   },

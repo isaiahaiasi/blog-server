@@ -20,7 +20,7 @@ export const getBlogs: RequestHandler = async (req, res, next) => {
   debug("getting blogs...");
 
   try {
-    const posts = await blogQueries.getAllBlogsFromDB();
+    const posts = await blogQueries.getAllBlogsFromDB(15);
     return sendAPIResponse<APIResponse<IPost[]>>(res, {
       success: true,
       content: posts,
