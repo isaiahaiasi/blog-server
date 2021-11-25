@@ -1,10 +1,6 @@
 import { RequestHandler } from "express";
 import { hashPassword } from "../config/passportConfig";
-import {
-  verifyToken,
-  verifyUserIsBlogAuthor,
-  verifyUserIsUser,
-} from "../middleware/authentication";
+import { verifyToken, verifyUserIsUser } from "../middleware/authentication";
 import { postValidators } from "../middleware/postValidators";
 import {
   passwordValidator,
@@ -105,6 +101,7 @@ export const getUserPostsFromDatabase: RequestHandler = async (
 ) => {
   try {
     logger("Getting posts for " + req.params.userid);
+
     const posts = await blogQueries.getPublishedUserBlogsFromDB(
       req.params.userid
     );
@@ -159,14 +156,16 @@ export const postUserPostToDatabase: RequestHandler = async (
       author: req.params.userid,
     });
 
-    console.log("post", post);
+    if (post) {
+      logger("Post added to DB", post);
 
-    return post
-      ? sendAPIResponse<APIResponse<IPost>>(res, {
-          success: true,
-          content: post,
-        })
-      : sendError(res, "Could not add blog post to database.", 500);
+      return sendAPIResponse<APIResponse<IPost>>(res, {
+        success: true,
+        content: post,
+      });
+    } else {
+      return sendError(res, "Could not add blog post to database.", 500);
+    }
   } catch (err) {
     next(err);
   }
@@ -224,7 +223,7 @@ export const getAllUserPosts: RequestHandler[] = [
 export const postUserPost: RequestHandler[] = [
   // TODO: validation
   verifyToken,
-  verifyUserIsBlogAuthor(),
+  verifyUserIsUser(),
   ...postValidators,
   postUserPostToDatabase,
 ];

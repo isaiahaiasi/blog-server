@@ -4,6 +4,9 @@ import blogQueries from "../queries/blogQueries";
 import commentQueries from "../queries/commentQueries";
 import userQueries from "../queries/userQueries";
 import { sendError } from "../responses/responseFactories";
+import createLogger from "../utils/debugHelper";
+
+const debug = createLogger("auth");
 
 // TODO: Don't know where this should actually go...
 declare global {
@@ -40,9 +43,12 @@ const verifySameUser = (
 
     const record = await queryFn(targetID).catch(next);
 
-    return record[matchField].toString() === req.user?._id.toString()
-      ? next()
-      : sendError(res, "User is not authorized to perform this action.", 403);
+    if (record[matchField].toString() === req.user?._id.toString()) {
+      debug("User authorized successfully.");
+      next();
+    } else {
+      sendError(res, "User is not authorized to perform this action.", 403);
+    }
   };
 };
 

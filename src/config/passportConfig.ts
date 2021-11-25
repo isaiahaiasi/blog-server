@@ -81,9 +81,12 @@ const getAccessTokenStrategy = (): JwtStrategy => {
       try {
         const user = await userQueries.getUserFromDBById(jwtPayload._id);
 
-        return user
-          ? done(null, user)
-          : done(null, false, { message: "Could not find user!" });
+        if (user) {
+          debug(`User ${user.username} authenticated successfully.`);
+          return done(null, user);
+        } else {
+          return done(null, false, { message: "Could not find user!" });
+        }
       } catch (err) {
         done(err);
       }
