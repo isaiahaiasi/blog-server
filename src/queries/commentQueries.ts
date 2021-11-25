@@ -6,6 +6,7 @@ interface CommentQueries {
   postCommentToDB: { (comment: IComment): Promise<IComment | null> };
   deleteCommentFromDB: { (commentId: string): Promise<IComment | null> };
   getCommentsByBlogId: { (blogId: string): Promise<IComment[]> };
+  getRawCommentFromDB: { (commentId: string): Promise<IComment | null> };
 }
 
 // * Query Implementations
@@ -18,6 +19,15 @@ interface CommentQueries {
 // but also feel like authorization should be it's own link in mw chain.
 
 const mongoQueries: CommentQueries = {
+  getRawCommentFromDB: async (id) => {
+    const commentId = castObjectId(id);
+
+    if (!commentId) {
+      return null;
+    }
+
+    return await Comment.findById(commentId);
+  },
   postCommentToDB: async (comment) => {
     return new Comment(comment).save();
   },
@@ -49,4 +59,5 @@ const mongoQueries: CommentQueries = {
 };
 
 // * Export desired implementation
-export default mongoQueries;
+const commentQueries = mongoQueries;
+export default commentQueries;

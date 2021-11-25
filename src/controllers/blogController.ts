@@ -1,5 +1,8 @@
 import { RequestHandler } from "express";
-import { verifyToken } from "../middleware/authentication";
+import {
+  verifyToken,
+  verifyUserIsBlogAuthor,
+} from "../middleware/authentication";
 import { getNotFoundError } from "../middleware/errorHandler";
 import {
   commentValidators,
@@ -169,21 +172,21 @@ export const getBlogById: RequestHandler[] = [getBlogByIdHandler];
 
 export const updateBlog: RequestHandler[] = [
   verifyToken,
-  // TODO: confirm logged in user matches author of post
+  verifyUserIsBlogAuthor(),
   ...postValidators,
   updateBlogInDatabase,
 ];
 
 export const deleteBlog: RequestHandler[] = [
   verifyToken,
-  // TODO: authorization
+  verifyUserIsBlogAuthor(),
   ...postValidators,
   deleteBlogInDatabase,
 ];
 
 export const postComment: RequestHandler[] = [
-  verifyToken,
   ...commentValidators,
+  verifyToken,
   postCommentToDBHandler,
 ];
 

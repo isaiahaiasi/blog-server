@@ -1,5 +1,8 @@
 import { RequestHandler } from "express";
-import { verifyToken } from "../middleware/authentication";
+import {
+  verifyToken,
+  verifyUserIsCommentAuthor,
+} from "../middleware/authentication";
 import { IComment } from "../models/Comment";
 import commentQueries from "../queries/commentQueries";
 import { sendAPIResponse, sendError } from "../responses/responseFactories";
@@ -26,6 +29,6 @@ const deleteCommentFromDBHandler: RequestHandler = async (req, res, next) => {
 
 export const deleteComment = [
   verifyToken,
-  // verifySameUser,
+  verifyUserIsCommentAuthor(),
   deleteCommentFromDBHandler,
 ];

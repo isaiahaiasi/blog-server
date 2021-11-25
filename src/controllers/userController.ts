@@ -1,8 +1,9 @@
 import { RequestHandler } from "express";
 import { hashPassword } from "../config/passportConfig";
 import {
-  verifySameUserFactory,
   verifyToken,
+  verifyUserIsBlogAuthor,
+  verifyUserIsUser,
 } from "../middleware/authentication";
 import { postValidators } from "../middleware/postValidators";
 import {
@@ -184,23 +185,22 @@ export const getUser: RequestHandler[] = [getUserFromDBHandler];
 
 export const getUserVerified: RequestHandler[] = [
   verifyToken,
-  // verifySameUser,
+  verifyUserIsUser(),
   getUserFromDBHandler,
 ];
 
-export const getUsers: RequestHandler[] = [
-  // verifyToken,
-  getAllUsersHandler,
-];
+export const getUsers: RequestHandler[] = [getAllUsersHandler];
 
+// TODO: properly handle validation of optional params
+// TODO: not sure PUT is appropriate here
+// (since this is a partial update, not replacing the record...)
 export const putUser: RequestHandler[] = [
-  // TODO: properly handle validation of optional params
   ifPresent(validateUsername, "username"),
   ifPresent(validatePassword, "password"),
   ifPresent(validatePasswordsMatch, "passwordConfirm"),
   validatorHandler,
   verifyToken,
-  // verifySameUser,
+  verifyUserIsUser(),
   putUserInDBHandler,
 ];
 
@@ -208,7 +208,7 @@ export const putUser: RequestHandler[] = [
 export const deleteUser: RequestHandler[] = [
   ...passwordValidator,
   verifyToken,
-  // verifySameUser,
+  verifyUserIsUser(),
   deleteUserFromDatabase,
 ];
 
@@ -217,13 +217,14 @@ export const getUserPosts: RequestHandler[] = [getUserPostsFromDatabase];
 
 export const getAllUserPosts: RequestHandler[] = [
   verifyToken,
-  verifySameUserFactory(userQueries.getUserFromDBById, "userid", "_id"),
+  verifyUserIsUser(),
   getAllUserPostsFromDatabase,
 ];
 
 export const postUserPost: RequestHandler[] = [
+  // TODO: validation
   verifyToken,
-  // verifySameUser,
+  verifyUserIsBlogAuthor(),
   ...postValidators,
   postUserPostToDatabase,
 ];

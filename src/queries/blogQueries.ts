@@ -4,6 +4,7 @@ import { castObjectId } from "../utils/mongooseHelpers";
 interface BlogQueries {
   getAllBlogsFromDB: { (maxResults: number): Promise<IPost[]> };
   getBlogFromDBById: { (id: string): Promise<IPost | null> };
+  getRawBlogFromDB: { (id: string): Promise<IPost | null> };
   getPublishedUserBlogsFromDB: { (userId: string): Promise<IPost[] | null> };
   getAllUserBlogsFromDB: { (userId: string): Promise<IPost[] | null> };
   updateBlogInDB: { (id: string, blog: Partial<IPost>): Promise<IPost | null> };
@@ -36,6 +37,16 @@ const mongoQueries: BlogQueries = {
     }
 
     return Post.findById(blogId).populate("author", "-password -tkey").exec();
+  },
+
+  getRawBlogFromDB: async (id) => {
+    const blogId = castObjectId(id);
+
+    if (!blogId) {
+      return null;
+    }
+
+    return Post.findById(blogId).exec();
   },
 
   getPublishedUserBlogsFromDB: async (userId) => {

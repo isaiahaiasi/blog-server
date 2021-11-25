@@ -1,5 +1,8 @@
 import { RequestHandler } from "express";
 import passport from "passport";
+import blogQueries from "../queries/blogQueries";
+import commentQueries from "../queries/commentQueries";
+import userQueries from "../queries/userQueries";
 import { sendError } from "../responses/responseFactories";
 
 // TODO: Don't know where this should actually go...
@@ -18,7 +21,7 @@ export const verifyToken: RequestHandler = passport.authenticate("jwt", {
   session: false,
 });
 
-export const verifySameUserFactory = (
+const verifySameUser = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   queryFn: (id: string) => Promise<any>,
   param: string,
@@ -42,3 +45,14 @@ export const verifySameUserFactory = (
       : sendError(res, "User is not authorized to perform this action.", 403);
   };
 };
+
+export const verifyUserIsUser = (userParam = "userid"): RequestHandler =>
+  verifySameUser(userQueries.getUserFromDBById, userParam, "_id");
+
+export const verifyUserIsBlogAuthor = (blogParam = "blogid"): RequestHandler =>
+  verifySameUser(blogQueries.getRawBlogFromDB, blogParam, "author");
+
+export const verifyUserIsCommentAuthor = (
+  commentParam = "commentid"
+): RequestHandler =>
+  verifySameUser(commentQueries.getRawCommentFromDB, commentParam, "author");
