@@ -4,7 +4,6 @@ import {
   verifySameUserFactory,
   verifyToken,
 } from "../middleware/authentication";
-import { getNotFoundError, getSimpleError } from "../middleware/errorHandler";
 import { postValidators } from "../middleware/postValidators";
 import {
   passwordValidator,
@@ -17,11 +16,8 @@ import { IPost } from "../models/Post";
 import { IUser } from "../models/User";
 import blogQueries from "../queries/blogQueries";
 import userQueries from "../queries/userQueries";
-import {
-  APIErrorResponse,
-  APIResponse,
-  sendAPIResponse,
-} from "../responses/responseInterfaces";
+import { sendAPIResponse, sendError } from "../responses/responseFactories";
+import { APIResponse } from "../responses/responseInterfaces";
 import createLogger from "../utils/debugHelper";
 
 const logger = createLogger("endpoints");
@@ -37,15 +33,7 @@ const getUserFromDBHandler: RequestHandler = async (req, res, next) => {
         content: user,
       });
     } else {
-      return sendAPIResponse<APIErrorResponse>(
-        res,
-        {
-          success: false,
-          content: null,
-          errors: [getNotFoundError(userid)],
-        },
-        404
-      );
+      return sendError(res, `${userid} not found.`, 404);
     }
   } catch (err) {
     next(err);
@@ -84,15 +72,7 @@ const putUserInDBHandler: RequestHandler = async (req, res, next) => {
         content: user,
       });
     } else {
-      return sendAPIResponse<APIErrorResponse>(
-        res,
-        {
-          success: false,
-          content: null,
-          errors: [getNotFoundError(`User ${req.params.id}`)],
-        },
-        404
-      );
+      return sendError(res, `User ${req.params.id} not found.`, 404);
     }
   } catch (err) {
     next(err);
@@ -109,15 +89,7 @@ const deleteUserFromDatabase: RequestHandler = async (req, res, next) => {
         content: user,
       });
     } else {
-      return sendAPIResponse<APIErrorResponse>(
-        res,
-        {
-          success: false,
-          content: null,
-          errors: [getNotFoundError(`User ${req.params.id}`)],
-        },
-        404
-      );
+      return sendError(res, `User ${req.params.id} not found.`, 404);
     }
   } catch (err) {
     next(err);
@@ -141,15 +113,7 @@ export const getUserPostsFromDatabase: RequestHandler = async (
           success: true,
           content: posts,
         })
-      : sendAPIResponse<APIErrorResponse>(
-          res,
-          {
-            success: false,
-            content: null,
-            errors: [getSimpleError("No user posts")],
-          },
-          400
-        );
+      : sendError(res, "No user posts.", 400);
   } catch (err) {
     next(err);
   }
@@ -173,15 +137,7 @@ export const getAllUserPostsFromDatabase: RequestHandler = async (
           success: true,
           content: posts,
         })
-      : sendAPIResponse<APIErrorResponse>(
-          res,
-          {
-            success: false,
-            content: null,
-            errors: [getSimpleError("No user posts")],
-          },
-          400
-        );
+      : sendError(res, "No user posts.", 400);
   } catch (err) {
     next(err);
   }
@@ -209,15 +165,7 @@ export const postUserPostToDatabase: RequestHandler = async (
           success: true,
           content: post,
         })
-      : sendAPIResponse<APIErrorResponse>(
-          res,
-          {
-            success: false,
-            content: null,
-            errors: [getSimpleError("Could not add blog post to database.")],
-          },
-          500
-        );
+      : sendError(res, "Could not add blog post to database.", 500);
   } catch (err) {
     next(err);
   }

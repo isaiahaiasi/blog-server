@@ -1,9 +1,6 @@
 import { RequestHandler } from "express";
 import passport from "passport";
-import {
-  APIErrorResponse,
-  sendAPIResponse,
-} from "../responses/responseInterfaces";
+import { sendError } from "../responses/responseFactories";
 
 // TODO: Don't know where this should actually go...
 declare global {
@@ -31,17 +28,9 @@ export const verifySameUserFactory = (
     const targetID = req.params[param];
 
     if (!targetID) {
-      sendAPIResponse<APIErrorResponse>(
+      return sendError(
         res,
-        {
-          success: false,
-          content: null,
-          errors: [
-            {
-              msg: `Could not find ID field ${param} on target resource.`,
-            },
-          ],
-        },
+        `Could not find ID field ${param} on target resource.`,
         400
       );
     }
@@ -50,14 +39,6 @@ export const verifySameUserFactory = (
 
     return record[matchField].toString() === req.user?._id.toString()
       ? next()
-      : sendAPIResponse<APIErrorResponse>(
-          res,
-          {
-            success: false,
-            content: null,
-            errors: [{ msg: "User is not authorized to perform this action." }],
-          },
-          403
-        );
+      : sendError(res, "User is not authorized to perform this action.", 403);
   };
 };

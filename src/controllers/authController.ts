@@ -1,26 +1,24 @@
 import { RequestHandler } from "express";
 import passport from "passport";
 import {
-  validatePasswordsMatch,
-  validatePassword,
-  validateUsername,
-} from "../middleware/userValidators";
-import { validatorHandler } from "../middleware/validatorHandler";
-import userQueries from "../queries/userQueries";
-import {
   generateUserSecret,
   getSignedToken,
   hashPassword,
   setAuthCookies,
 } from "../config/passportConfig";
-import createLogger from "../utils/debugHelper";
-import { getSimpleError } from "../middleware/errorHandler";
 import {
-  APIErrorResponse,
+  validatePassword,
+  validatePasswordsMatch,
+  validateUsername,
+} from "../middleware/userValidators";
+import { validatorHandler } from "../middleware/validatorHandler";
+import userQueries from "../queries/userQueries";
+import { sendAPIResponse, sendError } from "../responses/responseFactories";
+import {
   LoginResponse,
   RegistrationResponse,
-  sendAPIResponse,
 } from "../responses/responseInterfaces";
+import createLogger from "../utils/debugHelper";
 
 const log = createLogger("auth");
 
@@ -32,28 +30,12 @@ const loginUser: RequestHandler = (req, res, next) => {
 
     if (!user) {
       log("no user!");
-      return sendAPIResponse<APIErrorResponse>(
-        res,
-        {
-          success: false,
-          errors: [{ msg: "Could not find user record." }],
-          content: null,
-        },
-        400
-      );
+      return sendError(res, "Could not find user record.", 400);
     }
 
     req.login(user, { session: false }, async (err) => {
       if (err) {
-        return sendAPIResponse<APIErrorResponse>(
-          res,
-          {
-            success: false,
-            errors: [err],
-            content: null,
-          },
-          500
-        );
+        return sendError(res, [err], 500);
       }
 
       const { _id, username } = user;
@@ -91,15 +73,7 @@ const registerUser: RequestHandler = async (req, res, next) => {
         success: true,
       });
     } else {
-      return sendAPIResponse<APIErrorResponse>(
-        res,
-        {
-          success: false,
-          content: null,
-          errors: [getSimpleError("Could not create new user record")],
-        },
-        500
-      );
+      return sendError(res, "Could not create new user record", 500);
     }
   } catch (err) {
     next(err);

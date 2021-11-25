@@ -1,4 +1,3 @@
-import { Response } from "express";
 import { IUser } from "../models/User";
 
 // The base response interfaces that others descend from
@@ -34,14 +33,6 @@ export interface LoginResponse extends SuccessfulAPIResponse {
 
 export interface RegistrationResponse extends SuccessfulAPIResponse {
   content: Partial<IUser>;
-}
-
-export function sendAPIResponse<T>(
-  res: Response,
-  body: T,
-  responseCode = 200
-): void {
-  res.status(responseCode).json(body);
 }
 
 interface SuccessfulAPIResponse extends BaseAPIResponse {

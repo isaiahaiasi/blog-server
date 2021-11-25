@@ -1,8 +1,9 @@
 import { RequestHandler } from "express";
+import { sendError } from "../responses/responseFactories";
 
 const sendNotImplemented = (msg: string): RequestHandler => {
   return (req, res) => {
-    res.json({ errors: [{ msg: "NOT IMPLEMENTED YET: " + msg }] });
+    sendError(res, `NOT IMPLEMENTED: ${msg}`, 501);
   };
 };
 

@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { verifyToken } from "../middleware/authentication";
-import { getNotFoundError, getSimpleError } from "../middleware/errorHandler";
+import { getNotFoundError } from "../middleware/errorHandler";
 import {
   commentValidators,
   postValidators,
@@ -9,11 +9,8 @@ import { IComment } from "../models/Comment";
 import { IPost } from "../models/Post";
 import blogQueries from "../queries/blogQueries";
 import commentQueries from "../queries/commentQueries";
-import {
-  APIErrorResponse,
-  APIResponse,
-  sendAPIResponse,
-} from "../responses/responseInterfaces";
+import { sendAPIResponse, sendError } from "../responses/responseFactories";
+import { APIResponse } from "../responses/responseInterfaces";
 import createLogger from "../utils/debugHelper";
 import { castObjectId } from "../utils/mongooseHelpers";
 
@@ -80,15 +77,7 @@ const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
         content: { ...post, ...postUpdate },
       });
     } else {
-      return sendAPIResponse<APIErrorResponse>(
-        res,
-        {
-          success: false,
-          content: null,
-          errors: [getNotFoundError(`Blog id: ${req.params.blogid}`)],
-        },
-        404
-      );
+      return sendError(res, `Blog id: ${req.params.blogid}`, 404);
     }
   } catch (err) {
     next(err);
@@ -104,15 +93,7 @@ const deleteBlogInDatabase: RequestHandler = async (req, res, next) => {
           success: true,
           content: deletedPost,
         })
-      : sendAPIResponse<APIErrorResponse>(
-          res,
-          {
-            success: false,
-            content: null,
-            errors: [getNotFoundError(`Blog id: ${req.params.blogid}`)],
-          },
-          404
-        );
+      : sendError(res, `Blog id: ${req.params.blogid}`, 404);
   } catch (err) {
     next(err);
   }
@@ -134,15 +115,7 @@ const getBlogCommentsFromDBHandler: RequestHandler = async (req, res, next) => {
         content: comments,
       });
     } else {
-      return sendAPIResponse<APIErrorResponse>(
-        res,
-        {
-          success: false,
-          content: null,
-          errors: [getNotFoundError(`Blog id ${req.params.blogid}`)],
-        },
-        404
-      );
+      return sendError(res, `Blog id ${req.params.blogid}`, 404);
     }
   } catch (err) {
     next(err);
@@ -154,19 +127,11 @@ const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
   const userId = castObjectId(req.user?._id ?? "");
 
   if (!blogId) {
-    return sendAPIResponse<APIErrorResponse>(
-      res,
-      {
-        success: false,
-        content: null,
-        errors: [getSimpleError(`Invalid blog id ${req.params.blogid}`)],
-      },
-      400
-    );
+    return sendError(res, `Invalid blog id ${req.params.blogid}`, 400);
   }
 
   if (!userId) {
-    return res.status(401).json(getSimpleError("Invalid user credentials."));
+    return sendError(res, "Invalid user credentials.", 401);
   }
 
   try {
@@ -174,15 +139,7 @@ const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
 
     console.log("post", post);
     if (!post) {
-      return sendAPIResponse<APIErrorResponse>(
-        res,
-        {
-          success: false,
-          content: null,
-          errors: [getNotFoundError(req.params.blogid)],
-        },
-        404
-      );
+      return sendError(res, `Could not find ${req.params.blogid}`, 404);
     }
 
     debug(`Posting comment on blogpost ${blogId}`);
@@ -194,15 +151,7 @@ const postCommentToDBHandler: RequestHandler = async (req, res, next) => {
     });
 
     if (!comment) {
-      return sendAPIResponse<APIErrorResponse>(
-        res,
-        {
-          success: false,
-          content: null,
-          errors: [getSimpleError("Could not post comment.")],
-        },
-        500
-      );
+      return sendError(res, "Could not post comment.", 500);
     }
 
     sendAPIResponse<APIResponse<IComment>>(res, {
