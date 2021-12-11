@@ -21,14 +21,17 @@ const seedDatabase = async (): Promise<dbData> => {
     {
       username: "Steve",
       password: "password",
+      tkey: "1234",
     },
     {
       username: "Henry",
       password: "12345678",
+      tkey: "12345678",
     },
     {
       username: "Roberto",
       password: "r0bert0",
+      tkey: "r0bert0",
     },
   ];
 

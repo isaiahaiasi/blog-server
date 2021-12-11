@@ -61,7 +61,7 @@ const putUserInDBHandler: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const user = await userQueries.putUserInDB(req.params.id, updatedUser);
+    const user = await userQueries.putUserInDB(req.params.userid, updatedUser);
 
     if (user) {
       return sendAPIResponse<APIResponse<IUser>>(res, {
@@ -69,7 +69,7 @@ const putUserInDBHandler: RequestHandler = async (req, res, next) => {
         content: user,
       });
     } else {
-      return sendError(res, `User ${req.params.id} not found.`, 404);
+      return sendError(res, `User ${req.params.userid} not found.`, 404);
     }
   } catch (err) {
     next(err);
@@ -86,7 +86,7 @@ const deleteUserFromDatabase: RequestHandler = async (req, res, next) => {
         content: user,
       });
     } else {
-      return sendError(res, `User ${req.params.id} not found.`, 404);
+      return sendError(res, `User ${req.params.userid} not found.`, 404);
     }
   } catch (err) {
     next(err);
@@ -191,9 +191,7 @@ export const getUserVerified: RequestHandler[] = [
 export const getUsers: RequestHandler[] = [getAllUsersHandler];
 
 // TODO: properly handle validation of optional params
-// TODO: not sure PUT is appropriate here
-// (since this is a partial update, not replacing the record...)
-export const putUser: RequestHandler[] = [
+export const patchUser: RequestHandler[] = [
   ifPresent(validateUsername, "username"),
   ifPresent(validatePassword, "password"),
   ifPresent(validatePasswordsMatch, "passwordConfirm"),

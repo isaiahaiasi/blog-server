@@ -23,8 +23,10 @@ import createLogger from "../utils/debugHelper";
 const log = createLogger("auth");
 
 const loginUser: RequestHandler = (req, res, next) => {
+  log("logging in user...");
   passport.authenticate("local", { session: false }, (err, user) => {
     if (err) {
+      log(err);
       return next(err);
     }
 

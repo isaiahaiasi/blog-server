@@ -22,5 +22,5 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   res.locals.message = err?.message ?? "Not found!";
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
-  return sendError(res, res.locals.message, 500);
+  return sendError(res, res.locals.message, err?.status ?? 500);
 };

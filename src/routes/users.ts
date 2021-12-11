@@ -7,7 +7,7 @@ import {
   getUsers,
   getUserVerified,
   postUserPost,
-  putUser,
+  patchUser,
 } from "../controllers/userController";
 import sendNotImplemented from "../controllers/notImplementedController";
 
@@ -21,7 +21,7 @@ userRouter.get("/", getUsers);
 // create/get/update/delete a user
 userRouter.post("/", postRegister);
 userRouter.get("/:userid", getUserVerified);
-userRouter.put("/:userid", putUser);
+userRouter.patch("/:userid", patchUser);
 userRouter.delete("/:userid", deleteUser);
 
 // * USER RESOURCES
@@ -45,7 +45,6 @@ userRouter.get(
 );
 
 // add a new liked post to this user
-// ? not sure if this should have /:blogid ...
 userRouter.post(
   "/:userid/likes",
   sendNotImplemented("POST /users/:userid/likes")
