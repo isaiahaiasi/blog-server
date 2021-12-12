@@ -1,6 +1,10 @@
 import { RequestHandler } from "express";
 import { hashPassword } from "../config/passportConfig";
-import { verifyToken, verifyUserIsUser } from "../middleware/authentication";
+import {
+  confirmPassword,
+  verifyToken,
+  verifyUserIsUser,
+} from "../middleware/authentication";
 import { postValidators } from "../middleware/postValidators";
 import {
   passwordValidator,
@@ -106,12 +110,12 @@ export const getUserPostsFromDatabase: RequestHandler = async (
       req.params.userid
     );
 
-    return posts && Array.isArray(posts) && posts.length > 0
+    return posts && Array.isArray(posts)
       ? sendAPIResponse<APIResponse<IPost[]>>(res, {
           success: true,
           content: posts,
         })
-      : sendError(res, "No user posts.", 400);
+      : sendError(res, "Could not retrieve user posts.", 400);
   } catch (err) {
     next(err);
   }
@@ -206,6 +210,7 @@ export const deleteUser: RequestHandler[] = [
   ...passwordValidator,
   verifyToken,
   verifyUserIsUser(),
+  confirmPassword,
   deleteUserFromDatabase,
 ];
 

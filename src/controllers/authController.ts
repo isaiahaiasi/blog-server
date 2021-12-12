@@ -35,6 +35,10 @@ const loginUser: RequestHandler = (req, res, next) => {
       return sendError(res, "Could not find user record.", 400);
     }
 
+    // TODO
+    // according to the docs, passport.authenticate invokes req.login automatically
+    // so my source on this was probably poor,
+    // and I should refactor to remove this.
     req.login(user, { session: false }, async (err) => {
       if (err) {
         return sendError(res, [err], 500);

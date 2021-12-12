@@ -49,7 +49,7 @@ const mongoQueries: UserQueries = {
       return null;
     }
 
-    return User.findByIdAndUpdate(userId, user);
+    return User.findByIdAndUpdate(userId, user, { new: true });
   },
 
   deleteUserFromDB: async (id) => {
