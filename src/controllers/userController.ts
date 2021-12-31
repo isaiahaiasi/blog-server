@@ -134,12 +134,12 @@ export const getAllUserPostsFromDatabase: RequestHandler = async (
 
     const posts = await blogQueries.getAllUserBlogsFromDB(userId);
 
-    return posts && Array.isArray(posts) && posts.length > 0
+    return posts && Array.isArray(posts)
       ? sendAPIResponse<APIResponse<IPost[]>>(res, {
           success: true,
           content: posts,
         })
-      : sendError(res, "No user posts.", 400);
+      : sendError(res, "Could not retrieve user posts.", 400);
   } catch (err) {
     next(err);
   }

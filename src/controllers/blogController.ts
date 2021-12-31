@@ -89,7 +89,7 @@ const updateBlogInDatabase: RequestHandler = async (req, res, next) => {
 
 const deleteBlogInDatabase: RequestHandler = async (req, res, next) => {
   try {
-    const deletedPost = await blogQueries.deleteBlogFromDB(req.params.id);
+    const deletedPost = await blogQueries.deleteBlogFromDB(req.params.blogid);
 
     return deletedPost
       ? sendAPIResponse<APIResponse<IPost>>(res, {
@@ -180,7 +180,7 @@ export const updateBlog: RequestHandler[] = [
 export const deleteBlog: RequestHandler[] = [
   verifyToken,
   verifyUserIsBlogAuthor(),
-  ...postValidators,
+  // ...postValidators,
   deleteBlogInDatabase,
 ];
 
