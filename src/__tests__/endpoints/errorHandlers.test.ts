@@ -42,6 +42,8 @@ describe("Error handling", () => {
       .expect("Content-Type", /json/)
       .expect(418);
     expect(response.body).toStrictEqual({
+      content: null,
+      success: false,
       errors: [{ msg: errorBody.message }],
     });
   });

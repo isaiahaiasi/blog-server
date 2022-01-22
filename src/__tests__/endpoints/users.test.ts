@@ -3,6 +3,7 @@ import initializeMongooseTesting from "../__fixtures__/mongoConfigTesting";
 import initializeApp from "../__fixtures__/appConfigTesting";
 import userRouter from "../../routes/users";
 import seedDatabase from "../__fixtures__/dbTestSeeding";
+import { RegistrationResponse } from "../../responses/responseInterfaces";
 
 const cleanupFnPromise = initializeMongooseTesting();
 
@@ -25,8 +26,8 @@ describe("GET /users", () => {
       .get("/users")
       .expect("Content-Type", /json/);
     expect(response.statusCode).toBe(200);
-    expect(response.body[0].username).toBeDefined();
-    expect(response.body[0].password).toBeUndefined();
+    expect(response.body.content[0].username).toBeDefined();
+    expect(response.body.content[0].password).toBeUndefined();
   });
 });
 
@@ -42,8 +43,10 @@ describe("POST /users", () => {
       .expect("Content-Type", /json/)
       .expect(200);
 
-    expect(response.body.user.username).toBe("harrietta");
-    expect(response.body.msg).toBe("Registration successful!");
+    const body = response.body as RegistrationResponse;
+
+    expect(body.content.username).toBe("harrietta");
+    expect(body.success).toBe(true);
   });
 
   it("should reject user if passwords don't match", async () => {
