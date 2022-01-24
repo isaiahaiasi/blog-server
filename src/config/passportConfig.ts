@@ -17,6 +17,7 @@ import bcrypt from "bcryptjs";
 const debug = createLogger("auth");
 
 const ACCESS_TOKEN_LIFE = 60 * 60 * 1000; // 60 minutes
+const UID_TOKEN_LIFE = 24 * 60 * 60 * 1000; // 24 hours
 
 const generateUserSecret = (): string => nanoid();
 
@@ -41,7 +42,10 @@ const setAuthCookies = (res: Response, jwt_a: string, _id: string): void => {
     expires: new Date(ACCESS_TOKEN_LIFE + Date.now()),
     ...sharedCookieHeaders,
   });
-  res.cookie("uid", _id, sharedCookieHeaders);
+  res.cookie("uid", _id, {
+    expires: new Date(UID_TOKEN_LIFE + Date.now()),
+    ...sharedCookieHeaders,
+  });
   debug("cookies set");
 };
 
