@@ -1,8 +1,6 @@
 import { body } from "express-validator";
 import { validatorHandler } from "./validatorHandler";
 import userQueries from "../queries/userQueries";
-import createLogger from "../utils/debugHelper";
-const debug = createLogger("app:validation");
 
 // TODO: sanitization?
 
@@ -29,8 +27,6 @@ export const validatePassword = body("password")
 // because then I could just use .equals()...
 export const validatePasswordsMatch = body("passwordConfirm").custom(
   (value, { req }) => {
-    debug(req.body);
-    debug("value: (arg to validatePasswordsMatch)", value);
     if (value !== req.body.password) {
       throw new Error("Passwords must match!");
     } else {

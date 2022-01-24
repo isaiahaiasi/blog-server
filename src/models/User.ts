@@ -5,9 +5,6 @@ export interface IUser {
   username: string;
   password: string;
   tkey?: string;
-  // TODO:
-  // dateCreated
-  // likedPosts
 }
 
 const userSchema = new Schema<IUser>({

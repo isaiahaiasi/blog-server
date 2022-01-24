@@ -8,7 +8,6 @@ import createLogger from "../utils/debugHelper";
 
 const log = createLogger("auth");
 
-// TODO: Don't know where this should actually go...
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {

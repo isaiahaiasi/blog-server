@@ -3,7 +3,7 @@ import { castObjectId } from "../utils/mongooseHelpers";
 
 // * Query interfaces
 interface UserQueries {
-  addUserToDB: { (user: IUser): Promise<IUser | null> };
+  addUserToDB: { (user: IUser): Promise<Partial<IUser> | null> };
   getUserFromDBById: { (id: string): Promise<IUser | null> };
   getUserFromDB: { (userMatch: Partial<IUser>): Promise<IUser | null> };
   putUserInDB: { (id: string, user: Partial<IUser>): Promise<IUser | null> };
@@ -16,12 +16,15 @@ interface UserQueries {
 }
 
 // * Query implementations
-// Really like having an object for this,
-// the only downside is that now these functions aren't tree-shakeable
-// but it's a small enough amount of code that it shouldn't matter
+
+const SELECT_PUBLIC_USER_FIELDS = "-password -tkey";
+
 const mongoQueries: UserQueries = {
-  addUserToDB: (user) => {
-    return new User(user).save();
+  addUserToDB: (userData) => {
+    return new User(userData).save().then((user) => ({
+      username: user.username,
+      _id: user._id,
+    }));
   },
 
   getUserFromDBById: async (id) => {
@@ -31,7 +34,7 @@ const mongoQueries: UserQueries = {
       return null;
     }
 
-    return User.findById(userId, "username").exec();
+    return User.findById(userId, SELECT_PUBLIC_USER_FIELDS).exec();
   },
 
   getUserFromDB: async (userMatch) => {
@@ -39,17 +42,19 @@ const mongoQueries: UserQueries = {
   },
 
   getAllUsersFromDB: async () => {
-    return User.find({}).select("-password -tkey").exec();
+    return User.find({}).select(SELECT_PUBLIC_USER_FIELDS).exec();
   },
 
-  putUserInDB: async (id, user) => {
+  putUserInDB: async (id, userData) => {
     const userId = castObjectId(id);
 
     if (!userId) {
       return null;
     }
 
-    return User.findByIdAndUpdate(userId, user, { new: true });
+    return User.findByIdAndUpdate(userId, userData, { new: true }).select(
+      SELECT_PUBLIC_USER_FIELDS
+    );
   },
 
   deleteUserFromDB: async (id) => {
@@ -59,7 +64,7 @@ const mongoQueries: UserQueries = {
       return null;
     }
 
-    return User.findByIdAndDelete(userId);
+    return User.findByIdAndDelete(userId).select(SELECT_PUBLIC_USER_FIELDS);
   },
 
   getUserSecretFromDB: async (id) => {
