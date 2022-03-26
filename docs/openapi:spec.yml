@@ -1,0 +1,147 @@
+openapi: 3.0.2
+info:
+  title: API Title
+  version: '0.1'
+paths:
+  /auth/login:
+    post:
+      description: Log user in.
+      responses:
+        '200':
+          description: Login response
+  /auth/register:
+    post:
+      description: Create new user account and return httpOnly cookie with jwt access token.
+      responses:
+        '200':
+          description: Register response
+  /blogs:
+    get:
+      summary: Get all blogs.
+      description: Gets a preview of all blogs posted by all users.
+      operationId: getBlogs
+      responses:
+        '200':
+          description: Blogs response
+  /blogs/{blogid}:
+    get:
+      description: Get blog by id.
+      operationId: getBlogById
+      responses:
+        '200':
+          description: Blog response
+    put:
+      tags: [authenticated]
+      description: Update blog by id.
+      operationId: updateBlog
+      responses:
+        '200':
+          description: Blog response
+    delete:
+      tags: [authenticated]
+      description: Delete blog by id.
+      operationId: deleteBlog
+      responses:
+        '200':
+          description: Blog response
+  /blogs/{blogid}/comments:
+    get:
+      description: Get comments on blog post.
+      operationId: getBlogComments
+      responses:
+        '200':
+          description: Comments response
+    post:
+      tags: [authenticated]
+      description: Post comment on a post.
+      operationId: postComment
+      responses:
+        '200':
+          description: Comment response
+  /comments/{commentid}:
+    delete:
+      tags: [authenticated]
+      description: Delete comment on a post.
+      operationId: deleteComment
+      responses:
+        '200':
+          description: Comment response
+  /users:
+    get:
+      description: 'Get list of all users'
+      operationId: getUsers
+      responses:
+        '200':
+          description: OK
+    post:
+      description: Create new user (use auth/register instead)
+      responses:
+        '200':
+          description: OK
+  /users/{userid}:
+    get:
+      description: Get user by id
+      operationId: getUserVerified
+      responses:
+        '200':
+          description: OK
+    patch:
+      tags: [authenticated]
+      description: Update user by id.
+      operationId: patchUser
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags: [authenticated]
+      description: Delete user.
+      operationId: deleteUser
+      responses:
+        '200':
+          description: OK
+  /users/{userid}/blogs:
+    get:
+      description: Get all blog posts by user.
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: [authenticated]
+      description: Add a new user blog post.
+      operationId: postUserPost
+      responses:
+        '200':
+          description: OK
+  /users/{userid}/blogs-all:
+    get:
+      tags: [authenticated]
+      description: Get all posts by user regardless of publish status.
+      operationId: getAllUserPosts
+      responses:
+        '200':
+          description: OK
+  /users/{userid}/likes:
+    get:
+      description: NOT IMPLEMENTED; Get all liked posts from user.
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: [authenticated]
+      description: NOT IMPLEMENTED; Add new liked post for user.
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags: [authenticated]
+      description: NOT IMPLEMENTED; Delete liked post for user.
+      responses:
+        '200':
+          description: OK
+
+components:
+  securitySchemes:
+    cookieAuth: # arbitrary name for the security scheme; will be used in the "security" key later
+      type: apiKey
+      in: cookie
+      name: jwt_a  # cookie name
