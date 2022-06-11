@@ -3,3 +3,4 @@ dist
 .env
 rest.http
 .vscode
+.DS_Store
